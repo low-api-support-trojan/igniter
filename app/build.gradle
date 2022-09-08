@@ -25,7 +25,6 @@ private String GenerateVersionName() {
 }
 
 android {
-    ndkVersion "23.1.7779620"
     compileSdkVersion targetSdkVersion
 
     applicationVariants.all { variant ->
@@ -48,6 +47,7 @@ android {
             }
         }
         archivesBaseName = "$applicationId-v$versionName-$versionCode"
+        multiDexEnabled true
     }
     buildTypes {
         debug {
@@ -97,6 +97,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.github.stealthcopter:AndroidNetworkTools:0.4.5.3'
     implementation 'com.google.android.material:material:1.6.0-alpha01'
     implementation 'androidx.activity:activity:1.4.0'
