@@ -2,11 +2,11 @@ apply plugin: 'com.android.application'
 
 android {
     ndkVersion "21.0.6113669"
-    compileSdkVersion 28
+    compileSdkVersion 33
     defaultConfig {
         applicationId "io.github.trojan_gfw.igniter"
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -16,8 +16,10 @@ android {
         externalNativeBuild {
             cmake {
                 arguments "-DANDROID_CPP_FEATURES=rtti exceptions"
+                cppFlags ''
             }
         }
+        ndkVersion "19.2.5345600"
     }
     buildTypes {
         release {

@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import clash.Clash;
+import clash.ClashStartOptions;
 import freeport.Freeport;
 import io.github.trojan_gfw.igniter.common.utils.PermissionUtils;
 import io.github.trojan_gfw.igniter.connection.TestConnection;
@@ -354,7 +355,14 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
                 ClashHelper.ChangeClashConfig(Globals.getClashConfigPath(),
                         trojanPort, clashSocksPort);
                 ClashHelper.ShowConfig(Globals.getClashConfigPath());
-                Clash.start(getFilesDir().toString());
+//                Clash.start(getFilesDir().toString());
+                ClashStartOptions clashStartOptions = new ClashStartOptions();
+                clashStartOptions.setHomeDir(getFilesDir().toString());
+                clashStartOptions.setTrojanProxyServer("127.0.0.1:" + trojanPort);
+                    // Clash specific syntax for any address
+                    clashStartOptions.setSocksListener("*:" + clashSocksPort);
+                clashStartOptions.setTrojanProxyServerUdpEnabled(true);
+                Clash.start(clashStartOptions);
                 LogHelper.i("Clash", "clash started");
             } catch (Exception e) {
                 e.printStackTrace();
@@ -421,7 +429,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         LogHelper.i(TAG, "shutdown");
         setState(STOPPING);
         JNIHelper.stop();
-        if (Clash.isRunning()) {
+        if (enable_clash) {
             Clash.stop();
             LogHelper.i("Clash", "clash stopped");
         }
