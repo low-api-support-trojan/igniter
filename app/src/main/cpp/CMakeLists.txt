@@ -3,6 +3,7 @@ project(igniter)
 add_definitions(-DENABLE_ANDROID_LOG)
 # As long as we use OpenSSL 1.1.1, we are safe
 add_definitions(-DENABLE_TLS13_CIPHERSUITES)
+add_definitions(-DINCLUDE_HEADERS)
 find_library( # Sets the name of the path variable.
           androidLogLib
 
