@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
-
 android {
+    def appName="igniter"
     ndkVersion "21.0.6113669"
     compileSdkVersion 33
     defaultConfig {
@@ -8,7 +8,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 33
         versionCode 1
-        versionName "1.0"
+        versionName "0.1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
@@ -19,12 +19,29 @@ android {
         ndkVersion "19.2.5345600"
     }
 
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = "${appName}-${versionName}-${variant.getFlavorName()}.${new Date().format('yyyy-MM-dd')}.apk"
+        }
+    }
+
     flavorDimensions 'api'
     productFlavors {
-        full {
-            minSdkVersion 21
+        "armeabi-v7a" {
             ndk {
-                abiFilters "armeabi-v7a", "arm64-v8a", "x86"
+                abiFilters "armeabi-v7a"
+            }
+            dimension "api"
+        }
+        "arm64-v8a" {
+            ndk {
+                abiFilters "arm64-v8a"
+            }
+            dimension "api"
+        }
+        x86 {
+            ndk {
+                abiFilters "x86"
             }
             dimension "api"
         }
@@ -36,6 +53,7 @@ android {
             dimension "api"
         }
     }
+
     buildTypes {
         release {
             minifyEnabled false
