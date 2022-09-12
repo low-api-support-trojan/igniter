@@ -4,7 +4,7 @@ import androidx.annotation.WorkerThread;
 
 import java.util.List;
 
-import io.github.trojan_gfw.igniter.TrojanConfig;
+import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 
 public interface ServerListDataSource {
     @WorkerThread

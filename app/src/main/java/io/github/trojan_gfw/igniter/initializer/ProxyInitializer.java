@@ -2,9 +2,9 @@ package io.github.trojan_gfw.igniter.initializer;
 
 import android.content.Context;
 
-import io.github.trojan_gfw.igniter.Globals;
 import io.github.trojan_gfw.igniter.LogHelper;
-import io.github.trojan_gfw.igniter.TrojanConfig;
+import io.github.trojan_gfw.igniter.persistence.Storage;
+import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.TrojanHelper;
 
 public class ProxyInitializer extends Initializer {
@@ -12,15 +12,16 @@ public class ProxyInitializer extends Initializer {
 
     @Override
     public void init(Context context) {
-        Globals.Init(context);
-        TrojanConfig cacheConfig = TrojanHelper.readTrojanConfig(Globals.getTrojanConfigPath());
+        Storage storage = Storage.getSharedInstance(context);
+        TrojanHelper trojanHelper = new TrojanHelper(context);
+        TrojanConfig cacheConfig = trojanHelper.readTrojanConfig(storage.getTrojanConfigPath());
         if (cacheConfig == null) {
             LogHelper.e(TAG, "read null trojan config");
         } else {
-            cacheConfig.setCaCertPath(Globals.getCaCertPath());
-            Globals.setTrojanConfigInstance(cacheConfig);
+            cacheConfig.setCaCertPath(storage.getCaCertPath());
+            TrojanConfig.setInstance(cacheConfig);
         }
-        if (!Globals.getTrojanConfigInstance().isValidRunningConfig()) {
+        if (!TrojanConfig.getInstance().isValidRunningConfig()) {
             LogHelper.e(TAG, "Invalid trojan config!");
         }
     }

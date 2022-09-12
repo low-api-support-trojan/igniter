@@ -1,15 +1,17 @@
-package io.github.trojan_gfw.igniter;
+package io.github.trojan_gfw.igniter.persistence;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import androidx.annotation.Nullable;
+
 import android.text.TextUtils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class TrojanConfig implements Parcelable {
-
     private String localAddr;
     private int localPort;
     private String remoteAddr;
@@ -21,8 +23,23 @@ public class TrojanConfig implements Parcelable {
     private String cipherList;
     private String tls13CipherList;
 
+    private static TrojanConfig instance;
 
-    public TrojanConfig() {
+    public static void init(Context context) {
+        Storage storage = Storage.getSharedInstance(context);
+        TrojanConfig trojanConfig = new TrojanConfig(storage.getCaCertPath());
+        setInstance(trojanConfig);
+    }
+
+    public static TrojanConfig getInstance() {
+        return instance;
+    }
+
+    public static void setInstance(TrojanConfig trojanConfig) {
+        instance = trojanConfig;
+    }
+
+    private void construct() {
         // defaults
         this.localAddr = "127.0.0.1";
         this.localPort = 1081;
@@ -46,6 +63,15 @@ public class TrojanConfig implements Parcelable {
         this.tls13CipherList = "TLS_AES_128_GCM_SHA256:"
                 + "TLS_CHACHA20_POLY1305_SHA256:"
                 + "TLS_AES_256_GCM_SHA384";
+    }
+
+    public TrojanConfig(String path) {
+        this.caCertPath = path;
+        construct();
+    }
+
+    public TrojanConfig() {
+        construct();
     }
 
     protected TrojanConfig(Parcel in) {

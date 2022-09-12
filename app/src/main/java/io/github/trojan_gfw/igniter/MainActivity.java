@@ -38,6 +38,8 @@ import io.github.trojan_gfw.igniter.common.utils.PermissionUtils;
 import io.github.trojan_gfw.igniter.common.utils.SnackbarUtils;
 import io.github.trojan_gfw.igniter.connection.TrojanConnection;
 import io.github.trojan_gfw.igniter.exempt.activity.ExemptAppActivity;
+import io.github.trojan_gfw.igniter.persistence.Storage;
+import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanService;
 import io.github.trojan_gfw.igniter.servers.activity.ServerListActivity;
 import io.github.trojan_gfw.igniter.servers.data.ServerListDataManager;
@@ -74,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             // update TextView
             startUpdates(); // to prevent infinite loop.
             if (remoteAddrText.hasFocus()) {
-                TrojanConfig ins = Globals.getTrojanConfigInstance();
+                TrojanConfig ins = TrojanConfig.getInstance();
                 ins.setRemoteAddr(remoteAddrText.getText().toString());
             }
             endUpdates();
@@ -86,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             // update TextView
             startUpdates(); // to prevent infinite loop.
             if (remotePortText.hasFocus()) {
-                TrojanConfig ins = Globals.getTrojanConfigInstance();
+                TrojanConfig ins = TrojanConfig.getInstance();
                 String portStr = remotePortText.getText().toString();
                 try {
                     int port = Integer.parseInt(portStr);
@@ -105,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             // update TextView
             startUpdates(); // to prevent infinite loop.
             if (passwordText.hasFocus()) {
-                TrojanConfig ins = Globals.getTrojanConfigInstance();
+                TrojanConfig ins = TrojanConfig.getInstance();
                 ins.setPassword(passwordText.getText().toString());
             }
             endUpdates();
@@ -186,9 +188,11 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         clashLink.setMovementMethod(LinkMovementMethod.getInstance());
         startStopButton = findViewById(R.id.startStopButton);
 
-        copyRawResourceToDir(R.raw.cacert, Globals.getCaCertPath(), true);
-        copyRawResourceToDir(R.raw.country, Globals.getCountryMmdbPath(), true);
-        copyRawResourceToDir(R.raw.clash_config, Globals.getClashConfigPath(), false);
+        final Storage storage = Storage.getSharedInstance(this);
+
+        copyRawResourceToDir(R.raw.cacert, storage.getCaCertPath(), true);
+        copyRawResourceToDir(R.raw.country, storage.getCountryMmdbPath(), true);
+        copyRawResourceToDir(R.raw.clash_config, storage.getClashConfigPath(), false);
 
         remoteAddrText.addTextChangedListener(remoteAddrTextListener);
 
@@ -220,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         ipv6Switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                TrojanConfig ins = Globals.getTrojanConfigInstance();
+                TrojanConfig ins = TrojanConfig.getInstance();
                 ins.setEnableIpv6(isChecked);
             }
         });
@@ -228,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         verifySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                TrojanConfig ins = Globals.getTrojanConfigInstance();
+                TrojanConfig ins = TrojanConfig.getInstance();
                 ins.setVerifyCert(isChecked);
             }
         });
@@ -258,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             protected void onTextChanged(String before, String old, String aNew, String after) {
                 // update TextView
                 startUpdates(); // to prevent infinite loop.
-                TrojanConfig ins = Globals.getTrojanConfigInstance();
+                TrojanConfig ins = TrojanConfig.getInstance();
                 TrojanConfig parsedConfig = TrojanURLHelper.ParseTrojanURL(before + aNew + after);
                 if (parsedConfig != null) {
                     String remoteAddress = parsedConfig.getRemoteAddr();
@@ -277,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             @Override
             protected void onTextChanged(String before, String old, String aNew, String after) {
                 startUpdates();
-                String str = TrojanURLHelper.GenerateTrojanURL(Globals.getTrojanConfigInstance());
+                String str = TrojanURLHelper.GenerateTrojanURL(TrojanConfig.getInstance());
                 if (str != null) {
                     trojanURLText.setText(str);
                 }
@@ -291,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
 
         startStopButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (!Globals.getTrojanConfigInstance().isValidRunningConfig()) {
+                if (!TrojanConfig.getInstance().isValidRunningConfig()) {
                     Toast.makeText(MainActivity.this,
                             R.string.invalid_configuration,
                             Toast.LENGTH_LONG).show();
@@ -299,10 +303,10 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                 }
                 if (proxyState == ProxyService.STATE_NONE || proxyState == ProxyService.STOPPED) {
                     TrojanHelper.WriteTrojanConfig(
-                            Globals.getTrojanConfigInstance(),
-                            Globals.getTrojanConfigPath()
+                            TrojanConfig.getInstance(),
+                            storage.getTrojanConfigPath()
                     );
-                    TrojanHelper.ShowConfig(Globals.getTrojanConfigPath());
+                    TrojanHelper.ShowConfig(storage.getTrojanConfigPath());
                     // start ProxyService
                     Intent i = VpnService.prepare(getApplicationContext());
                     if (i != null) {
@@ -319,22 +323,22 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         saveServerIb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!Globals.getTrojanConfigInstance().isValidRunningConfig()) {
+                if (!TrojanConfig.getInstance().isValidRunningConfig()) {
                     Toast.makeText(MainActivity.this, R.string.invalid_configuration, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 Threads.instance().runOnWorkThread(new Task() {
                     @Override
                     public void onRun() {
-                        TrojanConfig config = Globals.getTrojanConfigInstance();
-                        TrojanHelper.WriteTrojanConfig(config, Globals.getTrojanConfigPath());
+                        TrojanConfig config = TrojanConfig.getInstance();
+                        TrojanHelper.WriteTrojanConfig(config, storage.getTrojanConfigPath());
                         serverListDataManager.saveServerConfig(config);
                         showSaveConfigResult(true);
                     }
                 });
             }
         });
-        serverListDataManager = new ServerListDataManager(Globals.getTrojanConfigListPath());
+        serverListDataManager = new ServerListDataManager(storage.getTrojanConfigListPath());
         connection.connect(this, this);
         if (!PermissionUtils.hasReadWriteExtStoragePermission(this) && ActivityCompat
                 .shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -488,8 +492,9 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             trojanURLText.setText("");
             final TrojanConfig config = data.getParcelableExtra(ServerListActivity.KEY_TROJAN_CONFIG);
             if (config != null) {
-                config.setCaCertPath(Globals.getCaCertPath());
-                Globals.setTrojanConfigInstance(config);
+                Storage storage = Storage.getSharedInstance(this);
+                config.setCaCertPath(storage.getCaCertPath());
+                TrojanConfig.setInstance(config);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -556,14 +561,15 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        File file = new File(Globals.getTrojanConfigPath());
+        Storage storage = Storage.getSharedInstance(this);
+        File file = new File(storage.getTrojanConfigPath());
         if (file.exists()) {
             try {
                 try (FileInputStream fis = new FileInputStream(file)) {
                     byte[] content = new byte[(int) file.length()];
                     fis.read(content);
                     String contentStr = new String(content);
-                    TrojanConfig ins = Globals.getTrojanConfigInstance();
+                    TrojanConfig ins = TrojanConfig.getInstance();
                     ins.fromJSON(contentStr);
 
                     remoteAddrText.setText(ins.getRemoteAddr());

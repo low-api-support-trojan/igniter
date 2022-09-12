@@ -162,7 +162,8 @@ public class IgniterTileService extends TileService implements TrojanConnection.
      * Start ProxyService if everything is ready. Otherwise start the launcher Activity.
      */
     private void startProxyService() {
-        if (ProxyHelper.isTrojanConfigValid() && ProxyHelper.isVPNServiceConsented(this)) {
+
+        if (ProxyHelper.isTrojanConfigValid(this) && ProxyHelper.isVPNServiceConsented(this)) {
             ProxyHelper.startProxyService(this);
         } else {
             ProxyHelper.startLauncherActivity(this);

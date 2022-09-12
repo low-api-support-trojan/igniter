@@ -5,9 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.fragment.app.FragmentManager;
 
-import io.github.trojan_gfw.igniter.Globals;
 import io.github.trojan_gfw.igniter.R;
 import io.github.trojan_gfw.igniter.common.app.BaseAppCompatActivity;
+import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.servers.data.ServerListDataManager;
 import io.github.trojan_gfw.igniter.servers.fragment.ServerListFragment;
 import io.github.trojan_gfw.igniter.servers.presenter.ServerListPresenter;
@@ -29,7 +29,8 @@ public class ServerListActivity extends BaseAppCompatActivity {
         if (fragment == null) {
             fragment = ServerListFragment.newInstance();
         }
-        new ServerListPresenter(fragment, new ServerListDataManager(Globals.getTrojanConfigListPath()));
+        Storage storage = Storage.getSharedInstance(this);
+        new ServerListPresenter(fragment, new ServerListDataManager(storage.getTrojanConfigListPath()));
         fm.beginTransaction()
                 .replace(R.id.parent_fl, fragment, ServerListFragment.TAG)
                 .commitAllowingStateLoss();

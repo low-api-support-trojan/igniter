@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.trojan_gfw.igniter.R;
-import io.github.trojan_gfw.igniter.TrojanConfig;
+import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 
 public class ServerListAdapter extends RecyclerView.Adapter<ViewHolder> {
     private final LayoutInflater mInflater;

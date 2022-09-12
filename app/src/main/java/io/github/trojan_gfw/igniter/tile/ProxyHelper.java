@@ -6,11 +6,11 @@ import android.net.VpnService;
 import androidx.core.content.ContextCompat;
 
 import io.github.trojan_gfw.igniter.BuildConfig;
-import io.github.trojan_gfw.igniter.Globals;
 import io.github.trojan_gfw.igniter.MainActivity;
 import io.github.trojan_gfw.igniter.ProxyService;
 import io.github.trojan_gfw.igniter.R;
-import io.github.trojan_gfw.igniter.TrojanConfig;
+import io.github.trojan_gfw.igniter.persistence.Storage;
+import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.TrojanHelper;
 import io.github.trojan_gfw.igniter.common.os.MultiProcessSP;
 
@@ -23,14 +23,17 @@ import io.github.trojan_gfw.igniter.common.os.MultiProcessSP;
  * VPN service.
  */
 public abstract class ProxyHelper {
-    public static boolean isTrojanConfigValid() {
-        TrojanConfig cacheConfig = TrojanHelper.readTrojanConfig(Globals.getTrojanConfigPath());
+
+    public static boolean isTrojanConfigValid(Context context) {
+        TrojanHelper trojanHelper = new TrojanHelper(context);
+        Storage storage = Storage.getSharedInstance(context);
+        TrojanConfig cacheConfig = trojanHelper.readTrojanConfig(storage.getTrojanConfigPath());
         if (cacheConfig == null) {
             return false;
         }
-        cacheConfig.setCaCertPath(Globals.getCaCertPath());
+        cacheConfig.setCaCertPath(storage.getCaCertPath());
         if (BuildConfig.DEBUG) {
-            TrojanHelper.ShowConfig(Globals.getTrojanConfigPath());
+            trojanHelper.ShowConfig(storage.getTrojanConfigPath());
         }
         return cacheConfig.isValidRunningConfig();
     }

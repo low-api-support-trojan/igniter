@@ -1,5 +1,7 @@
 package io.github.trojan_gfw.igniter;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -19,9 +21,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.github.trojan_gfw.igniter.persistence.Storage;
+import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
+
 public class TrojanHelper {
     private static final String SINGLE_CONFIG_TAG = "TrojanConfig";
     private static final String CONFIG_LIST_TAG = "TrojanConfigList";
+
+    Context context;
+
+    public TrojanHelper(Context context) {
+        this.context = context;
+    }
 
     public static boolean writeTrojanServerConfigList(List<TrojanConfig> configList, String trojanConfigListPath) {
         JSONArray jsonArray = new JSONArray();
@@ -86,7 +97,7 @@ public class TrojanHelper {
         }
     }
 
-    private static String parseTrojanConfigToJSON(TrojanConfig config) {
+    private String parseTrojanConfigToJSON(TrojanConfig config) {
         try {
             /*JSONObject json = new JSONObject();
             json.put("local_addr", config.getLocalAddr());
@@ -108,7 +119,7 @@ public class TrojanHelper {
     }
 
     @Nullable
-    public static TrojanConfig readTrojanConfig(String trojanConfigPath) {
+    public TrojanConfig readTrojanConfig(String trojanConfigPath) {
         File file = new File(trojanConfigPath);
         if (!file.exists()) {
             return null;
@@ -119,7 +130,7 @@ public class TrojanHelper {
             while ((line = reader.readLine()) != null) {
                 sb.append(line);
             }
-            TrojanConfig trojanConfig = new TrojanConfig();
+            TrojanConfig trojanConfig = new TrojanConfig(Storage.getSharedInstance(context).getCaCertPath());
             trojanConfig.fromJSON(sb.toString());
             return trojanConfig;
         } catch (IOException e) {

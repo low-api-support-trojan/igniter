@@ -1,6 +1,11 @@
 package io.github.trojan_gfw.igniter;
 
+import android.content.Context;
+
 import java.net.URI;
+
+import io.github.trojan_gfw.igniter.persistence.Storage;
+import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 
 public class TrojanURLHelper {
     public static String GenerateTrojanURL(TrojanConfig trojanConfig) {

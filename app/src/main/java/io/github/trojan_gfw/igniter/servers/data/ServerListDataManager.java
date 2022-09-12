@@ -1,10 +1,9 @@
 package io.github.trojan_gfw.igniter.servers.data;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.trojan_gfw.igniter.TrojanConfig;
+import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.TrojanHelper;
 
 public class ServerListDataManager implements ServerListDataSource {

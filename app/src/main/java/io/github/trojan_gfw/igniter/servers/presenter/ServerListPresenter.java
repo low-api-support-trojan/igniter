@@ -16,7 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import io.github.trojan_gfw.igniter.TrojanConfig;
+import io.github.trojan_gfw.igniter.persistence.Storage;
+import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.TrojanURLHelper;
 import io.github.trojan_gfw.igniter.common.os.Task;
 import io.github.trojan_gfw.igniter.common.os.Threads;
@@ -98,6 +99,7 @@ public class ServerListPresenter implements ServerListContract.Presenter {
                 if (remoteAddr == null) {
                     continue;
                 }
+
                 TrojanConfig tmp = new TrojanConfig();
                 tmp.setRemoteAddr(remoteAddr);
                 tmp.setRemotePort(config.optInt("server_port"));

@@ -34,6 +34,7 @@ import io.github.trojan_gfw.igniter.common.utils.PermissionUtils;
 import io.github.trojan_gfw.igniter.connection.TestConnection;
 import io.github.trojan_gfw.igniter.exempt.data.ExemptAppDataManager;
 import io.github.trojan_gfw.igniter.exempt.data.ExemptAppDataSource;
+import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanService;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanServiceCallback;
 import tun2socks.Tun2socks;
@@ -214,7 +215,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
             return Collections.emptySet();
         }
         if (mExemptAppDataSource == null) {
-            mExemptAppDataSource = new ExemptAppDataManager(getApplicationContext(), Globals.getExemptedAppListPath());
+            mExemptAppDataSource = new ExemptAppDataManager(getApplicationContext(), Storage.getSharedInstance(this).getExemptedAppListPath());
         }
         // ensures that new exempted app list can be applied on proxy after modification.
         return mExemptAppDataSource.loadExemptAppPackageNameSet();
@@ -336,10 +337,10 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
             trojanPort = 1081;
         }
         LogHelper.i("Igniter", "trojan port is " + trojanPort);
-        TrojanHelper.ChangeListenPort(Globals.getTrojanConfigPath(), trojanPort);
-        TrojanHelper.ShowConfig(Globals.getTrojanConfigPath());
+        TrojanHelper.ChangeListenPort(Storage.getSharedInstance(this).getTrojanConfigPath(), trojanPort);
+        TrojanHelper.ShowConfig(Storage.getSharedInstance(this).getTrojanConfigPath());
 
-        JNIHelper.trojan(Globals.getTrojanConfigPath());
+        JNIHelper.trojan(Storage.getSharedInstance(this).getTrojanConfigPath());
 
         long clashSocksPort = 1080; // default value in case fail to get free port
         if (enable_clash) {
@@ -352,9 +353,9 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
                 while (clashSocksPort == trojanPort);
 
                 LogHelper.i("igniter", "clash port is " + clashSocksPort);
-                ClashHelper.ChangeClashConfig(Globals.getClashConfigPath(),
+                ClashHelper.ChangeClashConfig(Storage.getSharedInstance(this).getClashConfigPath(),
                         trojanPort, clashSocksPort);
-                ClashHelper.ShowConfig(Globals.getClashConfigPath());
+                ClashHelper.ShowConfig(Storage.getSharedInstance(this).getClashConfigPath());
 //                Clash.start(getFilesDir().toString());
                 ClashStartOptions clashStartOptions = new ClashStartOptions();
                 clashStartOptions.setHomeDir(getFilesDir().toString());
