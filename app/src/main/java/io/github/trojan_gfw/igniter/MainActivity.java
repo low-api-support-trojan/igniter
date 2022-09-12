@@ -302,11 +302,11 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                     return;
                 }
                 if (proxyState == ProxyService.STATE_NONE || proxyState == ProxyService.STOPPED) {
-                    TrojanHelper.WriteTrojanConfig(
+                    TrojanConfig.write(
                             TrojanConfig.getInstance(),
                             storage.getTrojanConfigPath()
                     );
-                    TrojanHelper.ShowConfig(storage.getTrojanConfigPath());
+                    TrojanConfig.show(storage.getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
                     // start ProxyService
                     Intent i = VpnService.prepare(getApplicationContext());
                     if (i != null) {
@@ -331,7 +331,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                     @Override
                     public void onRun() {
                         TrojanConfig config = TrojanConfig.getInstance();
-                        TrojanHelper.WriteTrojanConfig(config, storage.getTrojanConfigPath());
+                        TrojanConfig.write(config, storage.getTrojanConfigPath());
                         serverListDataManager.saveServerConfig(config);
                         showSaveConfigResult(true);
                     }
@@ -570,7 +570,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                     fis.read(content);
                     String contentStr = new String(content);
                     TrojanConfig ins = TrojanConfig.getInstance();
-                    ins.fromJSON(contentStr);
+                    ins.fromJSONString(contentStr);
 
                     remoteAddrText.setText(ins.getRemoteAddr());
                     remotePortText.setText(String.valueOf(ins.getRemotePort()));

@@ -35,6 +35,7 @@ import io.github.trojan_gfw.igniter.connection.TestConnection;
 import io.github.trojan_gfw.igniter.exempt.data.ExemptAppDataManager;
 import io.github.trojan_gfw.igniter.exempt.data.ExemptAppDataSource;
 import io.github.trojan_gfw.igniter.persistence.Storage;
+import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanService;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanServiceCallback;
 import tun2socks.Tun2socks;
@@ -337,9 +338,8 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
             trojanPort = 1081;
         }
         LogHelper.i("Igniter", "trojan port is " + trojanPort);
-        TrojanHelper.ChangeListenPort(Storage.getSharedInstance(this).getTrojanConfigPath(), trojanPort);
-        TrojanHelper.ShowConfig(Storage.getSharedInstance(this).getTrojanConfigPath());
-
+        TrojanConfig.update(Storage.getSharedInstance(this).getTrojanConfigPath(), "local_port", trojanPort);
+        TrojanConfig.show(Storage.getSharedInstance(this).getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
         JNIHelper.trojan(Storage.getSharedInstance(this).getTrojanConfigPath());
 
         long clashSocksPort = 1080; // default value in case fail to get free port

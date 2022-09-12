@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
-import io.github.trojan_gfw.igniter.TrojanHelper;
 
 public class ServerListDataManager implements ServerListDataSource {
     private final String mConfigFilePath;
@@ -15,7 +14,7 @@ public class ServerListDataManager implements ServerListDataSource {
 
     @Override
     public List<TrojanConfig> loadServerConfigList() {
-        return new ArrayList<>(TrojanHelper.readTrojanServerConfigList(mConfigFilePath));
+        return new ArrayList<>(TrojanConfig.readList(mConfigFilePath));
     }
 
     @Override
@@ -49,7 +48,7 @@ public class ServerListDataManager implements ServerListDataSource {
 
     @Override
     public void replaceServerConfigs(List<TrojanConfig> list) {
-        TrojanHelper.writeTrojanServerConfigList(list, mConfigFilePath);
-        TrojanHelper.ShowTrojanConfigList(mConfigFilePath);
+        TrojanConfig.writeList(list, mConfigFilePath);
+        TrojanConfig.show(mConfigFilePath, TrojanConfig.CONFIG_LIST_TAG);
     }
 }

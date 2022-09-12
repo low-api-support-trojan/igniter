@@ -5,7 +5,6 @@ import android.content.Context;
 import io.github.trojan_gfw.igniter.LogHelper;
 import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
-import io.github.trojan_gfw.igniter.TrojanHelper;
 
 public class ProxyInitializer extends Initializer {
     private static final String TAG = "ProxyInitializer";
@@ -13,8 +12,7 @@ public class ProxyInitializer extends Initializer {
     @Override
     public void init(Context context) {
         Storage storage = Storage.getSharedInstance(context);
-        TrojanHelper trojanHelper = new TrojanHelper(context);
-        TrojanConfig cacheConfig = trojanHelper.readTrojanConfig(storage.getTrojanConfigPath());
+        TrojanConfig cacheConfig = TrojanConfig.read(storage.getTrojanConfigPath());
         if (cacheConfig == null) {
             LogHelper.e(TAG, "read null trojan config");
         } else {

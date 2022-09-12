@@ -11,7 +11,6 @@ import io.github.trojan_gfw.igniter.ProxyService;
 import io.github.trojan_gfw.igniter.R;
 import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
-import io.github.trojan_gfw.igniter.TrojanHelper;
 import io.github.trojan_gfw.igniter.common.os.MultiProcessSP;
 
 /**
@@ -25,15 +24,14 @@ import io.github.trojan_gfw.igniter.common.os.MultiProcessSP;
 public abstract class ProxyHelper {
 
     public static boolean isTrojanConfigValid(Context context) {
-        TrojanHelper trojanHelper = new TrojanHelper(context);
         Storage storage = Storage.getSharedInstance(context);
-        TrojanConfig cacheConfig = trojanHelper.readTrojanConfig(storage.getTrojanConfigPath());
+        TrojanConfig cacheConfig = TrojanConfig.read(storage.getTrojanConfigPath());
         if (cacheConfig == null) {
             return false;
         }
         cacheConfig.setCaCertPath(storage.getCaCertPath());
         if (BuildConfig.DEBUG) {
-            trojanHelper.ShowConfig(storage.getTrojanConfigPath());
+            TrojanConfig.show(storage.getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
         }
         return cacheConfig.isValidRunningConfig();
     }

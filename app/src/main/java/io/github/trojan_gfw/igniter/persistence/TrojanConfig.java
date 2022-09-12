@@ -4,14 +4,34 @@ import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import android.text.TextUtils;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import io.github.trojan_gfw.igniter.LogHelper;
+
 public class TrojanConfig implements Parcelable {
+    public static final String SINGLE_CONFIG_TAG = "TrojanConfig";
+    public static final String CONFIG_LIST_TAG = "TrojanConfigList";
+
+    File filename;
     private String localAddr;
     private int localPort;
     private String remoteAddr;
@@ -23,14 +43,14 @@ public class TrojanConfig implements Parcelable {
     private String cipherList;
     private String tls13CipherList;
 
-    private JSONObject config;
+    private JSONObject json;
 
     private static TrojanConfig instance;
 
     // Global Config
     public static void init(Context context) {
         Storage storage = Storage.getSharedInstance(context);
-        TrojanConfig trojanConfig = new TrojanConfig(storage.getCaCertPath());
+        TrojanConfig trojanConfig = new TrojanConfig().setCaCertPath(storage.getCaCertPath());
         setInstance(trojanConfig);
     }
 
@@ -70,11 +90,6 @@ public class TrojanConfig implements Parcelable {
                 + "TLS_AES_256_GCM_SHA384";
     }
 
-    public TrojanConfig(String path) {
-        this.caCertPath = path;
-        construct();
-    }
-
     public TrojanConfig() {
         construct();
     }
@@ -111,7 +126,7 @@ public class TrojanConfig implements Parcelable {
         enableIpv6 = in.readByte() != 0;
         cipherList = in.readString();
         tls13CipherList = in.readString();
-        return  this;
+        return this;
     }
 
     public static final Creator<TrojanConfig> CREATOR = new Creator<TrojanConfig>() {
@@ -127,43 +142,42 @@ public class TrojanConfig implements Parcelable {
     };
 
     // JSON Processing
-    public String generateTrojanConfigJSON() {
-        try {
-            return new JSONObject()
-                    .put("local_addr", this.localAddr)
-                    .put("local_port", this.localPort)
-                    .put("remote_addr", this.remoteAddr)
-                    .put("remote_port", this.remotePort)
-                    .put("password", new JSONArray().put(password))
-                    .put("log_level", 2) // WARN
-                    .put("ssl", new JSONObject()
-                            .put("verify", this.verifyCert)
-                            .put("cert", this.caCertPath)
-                            .put("cipher", this.cipherList)
-                            .put("cipher_tls13", this.tls13CipherList)
-                            .put("alpn", new JSONArray().put("h2").put("http/1.1")))
-                    .put("enable_ipv6", this.enableIpv6)
-                    .toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public JSONObject toJSON() throws JSONException {
+        return new JSONObject()
+                .put("local_addr", this.localAddr)
+                .put("local_port", this.localPort)
+                .put("remote_addr", this.remoteAddr)
+                .put("remote_port", this.remotePort)
+                .put("password", new JSONArray().put(password))
+                .put("log_level", 2) // WARN
+                .put("ssl", new JSONObject()
+                        .put("verify", this.verifyCert)
+                        .put("cert", this.caCertPath)
+                        .put("cipher", this.cipherList)
+                        .put("cipher_tls13", this.tls13CipherList)
+                        .put("alpn", new JSONArray().put("h2").put("http/1.1")))
+                .put("enable_ipv6", this.enableIpv6);
     }
 
-    public void fromJSON(String jsonStr) {
-        try {
-            JSONObject json = new JSONObject(jsonStr);
-            this.setLocalAddr(json.getString("local_addr"))
-                    .setLocalPort(json.getInt("local_port"))
-                    .setRemoteAddr(json.getString("remote_addr"))
-                    .setRemotePort(json.getInt("remote_port"))
-                    .setPassword(json.getJSONArray("password").getString(0))
-                    .setEnableIpv6(json.getBoolean("enable_ipv6"))
-                    .setVerifyCert(json.getJSONObject("ssl").getBoolean("verify"));
+    public String toJSONString() throws JSONException {
+        return toJSON().toString();
+    }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public TrojanConfig fromJSON(JSONObject json) throws JSONException {
+        this.json = json;
+        this.setLocalAddr(json.getString("local_addr"))
+                .setLocalPort(json.getInt("local_port"))
+                .setRemoteAddr(json.getString("remote_addr"))
+                .setRemotePort(json.getInt("remote_port"))
+                .setPassword(json.getJSONArray("password").getString(0))
+                .setEnableIpv6(json.getBoolean("enable_ipv6"))
+                .setVerifyCert(json.getJSONObject("ssl").getBoolean("verify"));
+        return this;
+    }
+
+    public TrojanConfig fromJSONString(String jsonString) throws JSONException {
+        JSONObject jsonObject = new JSONObject(jsonString);
+        return this.fromJSON(jsonObject);
     }
 
     public void copyFrom(TrojanConfig that) {
@@ -298,6 +312,120 @@ public class TrojanConfig implements Parcelable {
             return false;
         }
         return a.equals(b);
+    }
+
+    @Nullable
+    public static TrojanConfig read(String filename) {
+        File file = new File(filename);
+        if (!file.exists()) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            TrojanConfig trojanConfig = new TrojanConfig();
+            trojanConfig.fromJSONString(sb.toString());
+            return trojanConfig;
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void write(TrojanConfig trojanConfig, String filename) {
+        try {
+            String config = trojanConfig.toJSONString();
+            File file = new File(filename);
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                fos.write(config.getBytes());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void show(String filename, String tag) {
+        try {
+            File file = new File(filename);
+            FileInputStream fis = new FileInputStream(file);
+                byte[] content = new byte[(int) file.length()];
+                fis.read(content);
+                LogHelper.v(tag, new String(content));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static <T> void update(String trojanConfigPath, String key, T v) {
+        File file = new File(trojanConfigPath);
+        if (file.exists()) {
+            try {
+                String str;
+                try (FileInputStream fis = new FileInputStream(file)) {
+                    byte[] content = new byte[(int) file.length()];
+                    fis.read(content);
+                    str = new String(content);
+                }
+                JSONObject json = new JSONObject(str);
+                json.put(key, v);
+                try (FileOutputStream fos = new FileOutputStream(file)) {
+                    fos.write(json.toString().getBytes());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    public static boolean writeList(List<TrojanConfig> configList, String filename) {
+        try {
+            JSONArray jsonArray = new JSONArray();
+            for (TrojanConfig config : configList) {
+                JSONObject jsonObject = config.toJSON();
+                jsonArray.put(jsonObject);
+            }
+            String configStr = jsonArray.toString();
+            File file = new File(filename);
+            if (file.exists()) {
+                file.delete();
+            }
+            OutputStream fos = new FileOutputStream(file);
+            fos.write(configStr.getBytes());
+            fos.flush();
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    @NonNull
+    public static List<TrojanConfig> readList(String filename) {
+        File file = new File(filename);
+        if (!file.exists()) {
+            return Collections.emptyList();
+        }
+        try (InputStream fis = new FileInputStream(file)) {
+            byte[] data = new byte[(int) file.length()];
+            fis.read(data);
+            String json = new String(data);
+            JSONArray jsonArr = new JSONArray(json);
+            int len = jsonArr.length();
+            List<TrojanConfig> list = new ArrayList<>(len);
+            for (int i = 0; i < len; i++) {
+                TrojanConfig tc = new TrojanConfig().fromJSON(jsonArr.getJSONObject(i));
+                list.add(tc);
+            }
+            return list;
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
     }
 
 }
