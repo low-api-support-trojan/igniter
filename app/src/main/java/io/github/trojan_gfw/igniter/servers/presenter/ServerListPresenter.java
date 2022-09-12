@@ -18,7 +18,6 @@ import java.util.Set;
 
 import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
-import io.github.trojan_gfw.igniter.TrojanURLHelper;
 import io.github.trojan_gfw.igniter.common.os.Task;
 import io.github.trojan_gfw.igniter.common.os.Threads;
 import io.github.trojan_gfw.igniter.servers.contract.ServerListContract;
@@ -119,7 +118,7 @@ public class ServerListPresenter implements ServerListContract.Presenter {
         Threads.instance().runOnWorkThread(new Task() {
             @Override
             public void onRun() {
-                TrojanConfig config = TrojanURLHelper.ParseTrojanURL(trojanUrl);
+                TrojanConfig config = TrojanConfig.fromURIString(trojanUrl);
                 if (config != null) {
                     mDataManager.saveServerConfig(config);
                     loadConfigs();

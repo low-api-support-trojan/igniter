@@ -263,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                 // update TextView
                 startUpdates(); // to prevent infinite loop.
                 TrojanConfig ins = TrojanConfig.getInstance();
-                TrojanConfig parsedConfig = TrojanURLHelper.ParseTrojanURL(before + aNew + after);
+                TrojanConfig parsedConfig = TrojanConfig.fromURIString(before + aNew + after);
                 if (parsedConfig != null) {
                     String remoteAddress = parsedConfig.getRemoteAddr();
                     int remotePort = parsedConfig.getRemotePort();
@@ -281,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             @Override
             protected void onTextChanged(String before, String old, String aNew, String after) {
                 startUpdates();
-                String str = TrojanURLHelper.GenerateTrojanURL(TrojanConfig.getInstance());
+                String str = TrojanConfig.toURIString(TrojanConfig.getInstance());
                 if (str != null) {
                     trojanURLText.setText(str);
                 }
@@ -503,7 +503,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                         passwordText.setText(config.getPassword());
                     }
                 });
-                trojanURLText.setText(TrojanURLHelper.GenerateTrojanURL(config));
+                trojanURLText.setText(TrojanConfig.toURIString(config));
                 ipv6Switch.setChecked(config.getEnableIpv6());
                 verifySwitch.setChecked(config.getVerifyCert());
             }

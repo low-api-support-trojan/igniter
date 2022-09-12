@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -426,6 +427,48 @@ public class TrojanConfig implements Parcelable {
             e.printStackTrace();
         }
         return Collections.emptyList();
+    }
+
+
+    public static String toURIString(TrojanConfig trojanConfig) {
+        URI trojanUri;
+        try {
+            trojanUri = new URI("trojan",
+                    trojanConfig.getPassword(),
+                    trojanConfig.getRemoteAddr(),
+                    trojanConfig.getRemotePort(),
+                    null, null, null);
+        } catch (java.net.URISyntaxException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return trojanUri.toString();
+    }
+
+    public static TrojanConfig fromURIString(String URIString) {
+        URI trojanUri;
+        try {
+            trojanUri = new URI(URIString);
+        } catch (java.net.URISyntaxException e) {
+            e.printStackTrace();
+            return null;
+        }
+        String scheme = trojanUri.getScheme();
+        if (scheme == null) {
+            return null;
+        }
+        if (!scheme.equals("trojan"))
+            return null;
+        String host = trojanUri.getHost();
+        int port = trojanUri.getPort();
+        String userInfo = trojanUri.getUserInfo();
+
+        TrojanConfig retConfig = new TrojanConfig();
+        retConfig.setRemoteAddr(host);
+        retConfig.setRemotePort(port);
+        retConfig.setPassword(userInfo);
+        return retConfig;
     }
 
 }
