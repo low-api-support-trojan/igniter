@@ -23,8 +23,11 @@ public class TrojanConfig implements Parcelable {
     private String cipherList;
     private String tls13CipherList;
 
+    private JSONObject config;
+
     private static TrojanConfig instance;
 
+    // Global Config
     public static void init(Context context) {
         Storage storage = Storage.getSharedInstance(context);
         TrojanConfig trojanConfig = new TrojanConfig(storage.getCaCertPath());
@@ -39,6 +42,8 @@ public class TrojanConfig implements Parcelable {
         instance = trojanConfig;
     }
 
+
+    // Local Config
     private void construct() {
         // defaults
         this.localAddr = "127.0.0.1";
@@ -74,7 +79,28 @@ public class TrojanConfig implements Parcelable {
         construct();
     }
 
-    protected TrojanConfig(Parcel in) {
+    // Parcel processing
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(localAddr);
+        dest.writeInt(localPort);
+        dest.writeString(remoteAddr);
+        dest.writeInt(remotePort);
+        dest.writeString(password);
+        dest.writeByte((byte) (verifyCert ? 1 : 0));
+        dest.writeString(caCertPath);
+        dest.writeByte((byte) (enableIpv6 ? 1 : 0));
+        dest.writeString(cipherList);
+        dest.writeString(tls13CipherList);
+    }
+
+    protected TrojanConfig readFromParcel(Parcel in) {
         localAddr = in.readString();
         localPort = in.readInt();
         remoteAddr = in.readString();
@@ -85,12 +111,13 @@ public class TrojanConfig implements Parcelable {
         enableIpv6 = in.readByte() != 0;
         cipherList = in.readString();
         tls13CipherList = in.readString();
+        return  this;
     }
 
     public static final Creator<TrojanConfig> CREATOR = new Creator<TrojanConfig>() {
         @Override
         public TrojanConfig createFromParcel(Parcel in) {
-            return new TrojanConfig(in);
+            return new TrojanConfig().readFromParcel(in);
         }
 
         @Override
@@ -99,6 +126,7 @@ public class TrojanConfig implements Parcelable {
         }
     };
 
+    // JSON Processing
     public String generateTrojanConfigJSON() {
         try {
             return new JSONObject()
@@ -272,22 +300,4 @@ public class TrojanConfig implements Parcelable {
         return a.equals(b);
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(localAddr);
-        dest.writeInt(localPort);
-        dest.writeString(remoteAddr);
-        dest.writeInt(remotePort);
-        dest.writeString(password);
-        dest.writeByte((byte) (verifyCert ? 1 : 0));
-        dest.writeString(caCertPath);
-        dest.writeByte((byte) (enableIpv6 ? 1 : 0));
-        dest.writeString(cipherList);
-        dest.writeString(tls13CipherList);
-    }
 }
