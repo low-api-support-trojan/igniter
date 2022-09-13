@@ -215,7 +215,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
     }
 
     private Set<String> getExemptAppPackageNames() {
-        if (!IgniterApplication.getApplication().storage.isExteranlWritable()) {
+        if (!IgniterApplication.getApplication().storage.isExternalWritable()) {
             return Collections.emptySet();
         }
         if (mExemptAppDataSource == null) {

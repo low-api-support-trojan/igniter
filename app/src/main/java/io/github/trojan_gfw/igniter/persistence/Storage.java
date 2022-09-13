@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 import io.github.trojan_gfw.igniter.LogHelper;
 import io.github.trojan_gfw.igniter.R;
@@ -41,6 +42,11 @@ public class Storage {
     }
 
     public static void print(String filename, String tag) {
+        String result = read(filename);
+        LogHelper.v(tag, result);
+    }
+
+    public static String read(String filename) {
         try {
             File file = new File(filename);
             FileInputStream fis = new FileInputStream(file);
@@ -48,7 +54,20 @@ public class Storage {
             byte[] content = new byte[length];
             int readBytes = fis.read(content);
             assert readBytes == length;
-            LogHelper.v(tag, new String(content));
+            String result = new String(content);
+            return  result;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  null;
+    }
+
+    public static void write(String filename, byte[] bytes) {
+        try {
+            File file = new File(filename);
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                fos.write(bytes);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -78,7 +97,7 @@ public class Storage {
         return getPath(CACHE, context.getString(R.string.ca_cert_config));
     }
 
-    public boolean isExteranlWritable() {
+    public boolean isExternalWritable() {
         String[] permissions = {
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE

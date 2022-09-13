@@ -27,7 +27,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
@@ -348,7 +347,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         });
         serverListDataManager = new ServerListDataManager(app.storage.getTrojanConfigListPath());
         connection.connect(this, this);
-        if (!app.storage.isExteranlWritable() && ActivityCompat
+        if (!app.storage.isExternalWritable() && ActivityCompat
                 .shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             requestReadWriteExternalStoragePermission();
         }
@@ -548,7 +547,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                 startActivityForResult(ServerListActivity.create(MainActivity.this), SERVER_LIST_CHOOSE_REQUEST_CODE);
                 return true;
             case R.id.action_exempt_app:
-                if (app.storage.isExteranlWritable()) {
+                if (app.storage.isExternalWritable()) {
                     startActivityForResult(ExemptAppActivity.create(this), EXEMPT_APP_CONFIGURE_REQUEST_CODE);
                 } else {
                     if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
