@@ -568,27 +568,13 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        File file = new File(app.storage.getTrojanConfigPath());
-        if (file.exists()) {
-            try {
-                try (FileInputStream fis = new FileInputStream(file)) {
-                    byte[] content = new byte[(int) file.length()];
-                    fis.read(content);
-                    String contentStr = new String(content);
-                    TrojanConfig ins = TrojanConfig.getInstance();
-                    ins.fromJSONString(contentStr);
-
-                    remoteAddrText.setText(ins.getRemoteAddr());
-                    remotePortText.setText(String.valueOf(ins.getRemotePort()));
-                    passwordText.setText(ins.getPassword());
-                    ipv6Switch.setChecked(trojanPreferences.getEnableIPV6());
-                    verifySwitch.setChecked(ins.getVerifyCert());
-                    remoteAddrText.setSelection(remoteAddrText.length());
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        TrojanConfig trojanConfig = app.trojanConfig;
+        remoteAddrText.setText(trojanConfig.getRemoteAddr());
+        remotePortText.setText(String.valueOf(trojanConfig.getRemotePort()));
+        passwordText.setText(trojanConfig.getPassword());
+        ipv6Switch.setChecked(trojanPreferences.getEnableIPV6());
+        verifySwitch.setChecked(trojanConfig.getVerifyCert());
+        remoteAddrText.setSelection(remoteAddrText.length());
     }
 
     @Override
