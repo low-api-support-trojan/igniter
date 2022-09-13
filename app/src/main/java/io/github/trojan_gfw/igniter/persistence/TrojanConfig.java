@@ -38,6 +38,20 @@ public class TrojanConfig implements Parcelable {
     public static final String SINGLE_CONFIG_TAG = "TrojanConfig";
     public static final String CONFIG_LIST_TAG = "TrojanConfigList";
 
+    // Top Level Keys
+    public static final String KEY_LOCAL_ADDR = "local_addr";
+    public static final String KEY_LOCAL_PORT = "local_port";
+    public static final String KEY_REMOTE_ADDR = "remote_addr";
+    public static final String KEY_REMOTE_PORT = "remote_port";
+    public static final String KEY_PASSWORD = "password";
+
+    // SSL Sub Keys
+    public static final String KEY_SSL = "ssl";
+    public static final String KEY_VERIFY_CERT = "verify";
+    public static final String KEY_CA_CERT_PATH = "cert";
+    public static final String KEY_CIPHER_LIST = "cipher";
+    public static final String KEY_TLS13_CIPHER_LIST = "cipher_tls13";
+
     private static TrojanConfig instance;
     private static JSONObject defaultJSON;
 
@@ -86,28 +100,41 @@ public class TrojanConfig implements Parcelable {
     // Local Config
     private void construct() {
         // defaults
-        this.localAddr = "127.0.0.1";
-        this.localPort = 1080;
-        this.remotePort = 443;
-        this.verifyCert = true;
-        this.cipherList = "ECDHE-ECDSA-AES128-GCM-SHA256:"
-                + "ECDHE-RSA-AES128-GCM-SHA256:"
-                + "ECDHE-ECDSA-CHACHA20-POLY1305:"
-                + "ECDHE-RSA-CHACHA20-POLY1305:"
-                + "ECDHE-ECDSA-AES256-GCM-SHA384:"
-                + "ECDHE-RSA-AES256-GCM-SHA384:"
-                + "ECDHE-ECDSA-AES256-SHA:"
-                + "ECDHE-ECDSA-AES128-SHA:"
-                + "ECDHE-RSA-AES128-SHA:"
-                + "ECDHE-RSA-AES256-SHA:"
-                + "DHE-RSA-AES128-SHA:"
-                + "DHE-RSA-AES256-SHA:"
-                + "AES128-SHA:"
-                + "AES256-SHA:"
-                + "DES-CBC3-SHA";
-        this.tls13CipherList = "TLS_AES_128_GCM_SHA256:"
-                + "TLS_CHACHA20_POLY1305_SHA256:"
-                + "TLS_AES_256_GCM_SHA384";
+        try {
+//            this.localAddr = "127.0.0.1";
+            this.localAddr = defaultJSON.getString(KEY_LOCAL_ADDR);
+            //this.localPort = 1080;
+            this.localPort = defaultJSON.getInt(KEY_LOCAL_PORT);
+//            this.remotePort = 443;
+            this.remotePort = defaultJSON.getInt(KEY_REMOTE_PORT);
+            JSONObject ssl = defaultJSON.getJSONObject(KEY_SSL);
+            this.verifyCert = ssl.getBoolean(KEY_VERIFY_CERT);
+
+//            this.verifyCert = true;
+            this.cipherList = ssl.getString(KEY_CIPHER_LIST);
+//            this.cipherList = "ECDHE-ECDSA-AES128-GCM-SHA256:"
+//                    + "ECDHE-RSA-AES128-GCM-SHA256:"
+//                    + "ECDHE-ECDSA-CHACHA20-POLY1305:"
+//                    + "ECDHE-RSA-CHACHA20-POLY1305:"
+//                    + "ECDHE-ECDSA-AES256-GCM-SHA384:"
+//                    + "ECDHE-RSA-AES256-GCM-SHA384:"
+//                    + "ECDHE-ECDSA-AES256-SHA:"
+//                    + "ECDHE-ECDSA-AES128-SHA:"
+//                    + "ECDHE-RSA-AES128-SHA:"
+//                    + "ECDHE-RSA-AES256-SHA:"
+//                    + "DHE-RSA-AES128-SHA:"
+//                    + "DHE-RSA-AES256-SHA:"
+//                    + "AES128-SHA:"
+//                    + "AES256-SHA:"
+//                    + "DES-CBC3-SHA";
+
+            this.tls13CipherList = ssl.getString(KEY_TLS13_CIPHER_LIST);
+//            this.tls13CipherList = "TLS_AES_128_GCM_SHA256:"
+//                    + "TLS_CHACHA20_POLY1305_SHA256:"
+//                    + "TLS_AES_256_GCM_SHA384";
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public TrojanConfig() {
