@@ -24,19 +24,6 @@ import io.github.trojan_gfw.igniter.common.os.MultiProcessSP;
  */
 public abstract class ProxyHelper {
 
-    public static boolean isTrojanConfigValid(Context context) {
-        Storage storage = IgniterApplication.getApplication().storage;
-        TrojanConfig cacheConfig = TrojanConfig.read(storage.getTrojanConfigPath());
-        if (cacheConfig == null) {
-            return false;
-        }
-        cacheConfig.setCaCertPath(storage.getCaCertPath());
-        if (BuildConfig.DEBUG) {
-            Storage.print(storage.getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
-        }
-        return cacheConfig.isValidRunningConfig();
-    }
-
     public static boolean isVPNServiceConsented(Context context) {
         return VpnService.prepare(context.getApplicationContext()) == null;
     }

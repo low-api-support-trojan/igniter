@@ -14,6 +14,7 @@ import io.github.trojan_gfw.igniter.ProxyService;
 import io.github.trojan_gfw.igniter.R;
 import io.github.trojan_gfw.igniter.common.os.MultiProcessSP;
 import io.github.trojan_gfw.igniter.connection.TrojanConnection;
+import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanService;
 
 /**
@@ -163,7 +164,7 @@ public class IgniterTileService extends TileService implements TrojanConnection.
      */
     private void startProxyService() {
 
-        if (ProxyHelper.isTrojanConfigValid(this) && ProxyHelper.isVPNServiceConsented(this)) {
+        if (TrojanConfig.getInstance().isValidRunningConfig() && ProxyHelper.isVPNServiceConsented(this)) {
             ProxyHelper.startProxyService(this);
         } else {
             ProxyHelper.startLauncherActivity(this);
