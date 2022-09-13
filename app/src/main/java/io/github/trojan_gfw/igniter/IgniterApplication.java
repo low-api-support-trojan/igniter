@@ -3,15 +3,21 @@ package io.github.trojan_gfw.igniter;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
+import android.os.Process;
+import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
 import java.util.List;
 
-import io.github.trojan_gfw.igniter.initializer.InitializerHelper;
+import io.github.trojan_gfw.igniter.common.os.MultiProcessSP;
 import io.github.trojan_gfw.igniter.persistence.Storage;
+import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 
 public class IgniterApplication extends Application {
+
+    public static String PROCESS_ID_TOOL = ":tool";
+    public static String PROCESS_ID_PROXY = ":proxy";
 
     public static IgniterApplication instance;
 
@@ -27,7 +33,7 @@ public class IgniterApplication extends Application {
         super.onCreate();
         instance = this;
         storage = new Storage(this);
-        InitializerHelper.runInit(this);
+        runInit(this);
     }
 
     @Nullable
@@ -43,5 +49,36 @@ public class IgniterApplication extends Application {
             }
         }
         return null;
+    }
+
+    public void runInit(Context context) {
+        final String processName =
+                IgniterApplication.getApplication().getProcessName(Process.myPid());
+
+        if (TextUtils.equals(processName, PROCESS_ID_TOOL)) {
+            toolInit();
+        } else if (TextUtils.equals(processName, PROCESS_ID_PROXY)) {
+            proxyInit();
+        } else {
+            mainInit();
+        }
+    }
+
+    public void proxyInit() {
+        TrojanConfig cacheConfig = TrojanConfig.read(storage.getTrojanConfigPath());
+        if (cacheConfig != null) {
+            cacheConfig.setCaCertPath(storage.getCaCertPath());
+            TrojanConfig.setInstance(cacheConfig);
+        }
+    }
+
+    public void toolInit() {
+        MultiProcessSP.init(this);
+        TrojanConfig.init(storage);
+    }
+
+    public void mainInit() {
+        MultiProcessSP.init(this);
+        TrojanConfig.init(storage);
     }
 }
