@@ -15,19 +15,9 @@ public class Storage {
     public static final int FILES = 1;
     public static final int EXTERNAL = 2;
 
-    private static Storage instance = null;
-
-    public static Storage getSharedInstance(Context context) {
-        if (instance != null) {
-            return  instance;
-        }
-        instance = new Storage(context);
-        return  instance;
-    }
-
     public File[] dirs = new File[3];
 
-    Storage(Context context) {
+    public Storage(Context context) {
         this.context = context;
         dirs[CACHE] = context.getCacheDir();
         dirs[FILES] = context.getFilesDir();
@@ -50,8 +40,10 @@ public class Storage {
         try {
             File file = new File(filename);
             FileInputStream fis = new FileInputStream(file);
-            byte[] content = new byte[(int) file.length()];
-            fis.read(content);
+            int length = (int)file.length();
+            byte[] content = new byte[length];
+            int readBytes = fis.read(content);
+            assert readBytes == length;
             LogHelper.v(tag, new String(content));
         } catch (Exception e) {
             e.printStackTrace();

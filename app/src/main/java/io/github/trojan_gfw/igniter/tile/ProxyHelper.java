@@ -6,6 +6,7 @@ import android.net.VpnService;
 import androidx.core.content.ContextCompat;
 
 import io.github.trojan_gfw.igniter.BuildConfig;
+import io.github.trojan_gfw.igniter.IgniterApplication;
 import io.github.trojan_gfw.igniter.MainActivity;
 import io.github.trojan_gfw.igniter.ProxyService;
 import io.github.trojan_gfw.igniter.R;
@@ -24,7 +25,7 @@ import io.github.trojan_gfw.igniter.common.os.MultiProcessSP;
 public abstract class ProxyHelper {
 
     public static boolean isTrojanConfigValid(Context context) {
-        Storage storage = Storage.getSharedInstance(context);
+        Storage storage = IgniterApplication.getApplication().storage;
         TrojanConfig cacheConfig = TrojanConfig.read(storage.getTrojanConfigPath());
         if (cacheConfig == null) {
             return false;

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.github.trojan_gfw.igniter.IgniterApplication;
 import io.github.trojan_gfw.igniter.LogHelper;
 import io.github.trojan_gfw.igniter.R;
 
@@ -55,7 +56,6 @@ public class TrojanConfig implements Parcelable {
     private static TrojanConfig instance;
     private static JSONObject defaultJSON;
 
-
     // Object Scoped members
     File filename;
     private String localAddr;
@@ -72,10 +72,9 @@ public class TrojanConfig implements Parcelable {
 
 
     // Global Config
-    public static void init(Context context) {
-        Storage storage = Storage.getSharedInstance(context);
+    public static void init(Storage storage) {
         try {
-            Resources res = context.getResources();
+            Resources res = storage.context.getResources();
             InputStream inputStream = res.openRawResource(R.raw.config);
 
             byte[] b = new byte[inputStream.available()];

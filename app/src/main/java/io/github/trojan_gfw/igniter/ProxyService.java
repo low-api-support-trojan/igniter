@@ -216,7 +216,8 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
             return Collections.emptySet();
         }
         if (mExemptAppDataSource == null) {
-            mExemptAppDataSource = new ExemptAppDataManager(getApplicationContext(), Storage.getSharedInstance(this).getExemptedAppListPath());
+            mExemptAppDataSource = new ExemptAppDataManager(getApplicationContext(),
+                    IgniterApplication.getApplication().storage.getExemptedAppListPath());
         }
         // ensures that new exempted app list can be applied on proxy after modification.
         return mExemptAppDataSource.loadExemptAppPackageNameSet();
@@ -338,9 +339,10 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
             trojanPort = 1081;
         }
         LogHelper.i("Igniter", "trojan port is " + trojanPort);
-        TrojanConfig.update(Storage.getSharedInstance(this).getTrojanConfigPath(), "local_port", trojanPort);
-        Storage.print(Storage.getSharedInstance(this).getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
-        JNIHelper.trojan(Storage.getSharedInstance(this).getTrojanConfigPath());
+        Storage storage = IgniterApplication.getApplication().storage;
+        TrojanConfig.update(storage.getTrojanConfigPath(), "local_port", trojanPort);
+        Storage.print(storage.getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
+        JNIHelper.trojan(storage.getTrojanConfigPath());
 
         long clashSocksPort = 1080; // default value in case fail to get free port
         if (enable_clash) {
@@ -353,9 +355,9 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
                 while (clashSocksPort == trojanPort);
 
                 LogHelper.i("igniter", "clash port is " + clashSocksPort);
-                ClashHelper.ChangeClashConfig(Storage.getSharedInstance(this).getClashConfigPath(),
+                ClashHelper.ChangeClashConfig(storage.getClashConfigPath(),
                         trojanPort, clashSocksPort);
-                ClashHelper.ShowConfig(Storage.getSharedInstance(this).getClashConfigPath());
+                ClashHelper.ShowConfig(storage.getClashConfigPath());
 //                Clash.start(getFilesDir().toString());
                 ClashStartOptions clashStartOptions = new ClashStartOptions();
                 clashStartOptions.setHomeDir(getFilesDir().toString());

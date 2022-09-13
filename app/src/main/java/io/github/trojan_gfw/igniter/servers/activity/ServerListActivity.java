@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.fragment.app.FragmentManager;
 
+import io.github.trojan_gfw.igniter.IgniterApplication;
 import io.github.trojan_gfw.igniter.R;
 import io.github.trojan_gfw.igniter.common.app.BaseAppCompatActivity;
 import io.github.trojan_gfw.igniter.persistence.Storage;
@@ -29,7 +30,7 @@ public class ServerListActivity extends BaseAppCompatActivity {
         if (fragment == null) {
             fragment = ServerListFragment.newInstance();
         }
-        Storage storage = Storage.getSharedInstance(this);
+        Storage storage = IgniterApplication.getApplication().storage;
         new ServerListPresenter(fragment, new ServerListDataManager(storage.getTrojanConfigListPath()));
         fm.beginTransaction()
                 .replace(R.id.parent_fl, fragment, ServerListFragment.TAG)

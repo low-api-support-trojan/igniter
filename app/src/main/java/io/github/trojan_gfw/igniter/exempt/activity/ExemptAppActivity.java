@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.fragment.app.FragmentManager;
 import android.view.Window;
 
+import io.github.trojan_gfw.igniter.IgniterApplication;
 import io.github.trojan_gfw.igniter.R;
 import io.github.trojan_gfw.igniter.common.app.BaseAppCompatActivity;
 import io.github.trojan_gfw.igniter.exempt.contract.ExemptAppContract;
@@ -16,6 +17,7 @@ import io.github.trojan_gfw.igniter.persistence.Storage;
 
 public class ExemptAppActivity extends BaseAppCompatActivity {
     private ExemptAppContract.Presenter mPresenter;
+    Storage storage;
 
     public static Intent create(Context context) {
         return new Intent(context, ExemptAppActivity.class);
@@ -26,13 +28,16 @@ public class ExemptAppActivity extends BaseAppCompatActivity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_exempt_app);
+
+        storage = ((IgniterApplication)getApplication()).storage;
         FragmentManager fm = getSupportFragmentManager();
         ExemptAppFragment fragment = (ExemptAppFragment) fm.findFragmentByTag(ExemptAppFragment.TAG);
         if (fragment == null) {
             fragment = ExemptAppFragment.newInstance();
         }
-        mPresenter = new ExemptAppPresenter(fragment, new ExemptAppDataManager(getApplicationContext(),
-                Storage.getSharedInstance(this).getExemptedAppListPath()));
+        mPresenter = new ExemptAppPresenter(fragment,
+                new ExemptAppDataManager(getApplicationContext(),
+                storage.getExemptedAppListPath()));
         fm.beginTransaction()
                 .replace(R.id.parent_fl, fragment, ExemptAppFragment.TAG)
                 .commitAllowingStateLoss();

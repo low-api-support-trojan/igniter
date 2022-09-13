@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
 
     TrojanPreferences trojanPreferences;
     TrojanConfig trojanConfig;
+    IgniterApplication app;
 
     private ViewGroup rootViewGroup;
     private EditText remoteAddrText;
@@ -183,6 +184,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         trojanPreferences = new TrojanPreferences(this);
 
         trojanConfig = new TrojanConfig();
+        app = IgniterApplication.getApplication();
 
 
         rootViewGroup = findViewById(R.id.rootScrollView);
@@ -198,11 +200,9 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         clashLink.setMovementMethod(LinkMovementMethod.getInstance());
         startStopButton = findViewById(R.id.startStopButton);
 
-        final Storage storage = Storage.getSharedInstance(this);
-
-        copyRawResourceToDir(R.raw.cacert, storage.getCaCertPath(), true);
-        copyRawResourceToDir(R.raw.country, storage.getCountryMmdbPath(), true);
-        copyRawResourceToDir(R.raw.clash_config, storage.getClashConfigPath(), false);
+        copyRawResourceToDir(R.raw.cacert, app.storage.getCaCertPath(), true);
+        copyRawResourceToDir(R.raw.country, app.storage.getCountryMmdbPath(), true);
+        copyRawResourceToDir(R.raw.clash_config, app.storage.getClashConfigPath(), false);
 
         remoteAddrText.addTextChangedListener(remoteAddrTextListener);
 
@@ -313,9 +313,9 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                 if (proxyState == ProxyService.STATE_NONE || proxyState == ProxyService.STOPPED) {
                     TrojanConfig.write(
                             TrojanConfig.getInstance(),
-                            storage.getTrojanConfigPath()
+                            app.storage.getTrojanConfigPath()
                     );
-                    Storage.print(storage.getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
+                    Storage.print(app.storage.getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
                     // start ProxyService
                     Intent i = VpnService.prepare(getApplicationContext());
                     if (i != null) {
@@ -340,14 +340,14 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                     @Override
                     public void onRun() {
                         TrojanConfig config = TrojanConfig.getInstance();
-                        TrojanConfig.write(config, storage.getTrojanConfigPath());
+                        TrojanConfig.write(config, app.storage.getTrojanConfigPath());
                         serverListDataManager.saveServerConfig(config);
                         showSaveConfigResult(true);
                     }
                 });
             }
         });
-        serverListDataManager = new ServerListDataManager(storage.getTrojanConfigListPath());
+        serverListDataManager = new ServerListDataManager(app.storage.getTrojanConfigListPath());
         connection.connect(this, this);
         if (!PermissionUtils.hasReadWriteExtStoragePermission(this) && ActivityCompat
                 .shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -501,8 +501,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             trojanURLText.setText("");
             final TrojanConfig config = data.getParcelableExtra(ServerListActivity.KEY_TROJAN_CONFIG);
             if (config != null) {
-                Storage storage = Storage.getSharedInstance(this);
-                config.setCaCertPath(storage.getCaCertPath());
+                config.setCaCertPath(app.storage.getCaCertPath());
                 TrojanConfig.setInstance(config);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -570,8 +569,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        Storage storage = Storage.getSharedInstance(this);
-        File file = new File(storage.getTrojanConfigPath());
+        File file = new File(app.storage.getTrojanConfigPath());
         if (file.exists()) {
             try {
                 try (FileInputStream fis = new FileInputStream(file)) {

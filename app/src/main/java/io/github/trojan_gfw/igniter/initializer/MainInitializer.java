@@ -2,6 +2,7 @@ package io.github.trojan_gfw.igniter.initializer;
 
 import android.content.Context;
 
+import io.github.trojan_gfw.igniter.IgniterApplication;
 import io.github.trojan_gfw.igniter.common.os.MultiProcessSP;
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 
@@ -14,7 +15,7 @@ public class MainInitializer extends Initializer {
     public void init(Context context) {
         MultiProcessSP.init(context);
         MultiProcessSP.setIsFirstStart(false);
-        TrojanConfig.init(context);
+        TrojanConfig.init(IgniterApplication.getApplication().storage);
     }
 
     @Override
