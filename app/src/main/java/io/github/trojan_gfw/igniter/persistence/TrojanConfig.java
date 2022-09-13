@@ -1,6 +1,7 @@
 package io.github.trojan_gfw.igniter.persistence;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -27,11 +28,21 @@ import java.util.Collections;
 import java.util.List;
 
 import io.github.trojan_gfw.igniter.LogHelper;
+import io.github.trojan_gfw.igniter.R;
 
 public class TrojanConfig implements Parcelable {
+
+    // Class Scoped Static Definitions
+
+    // Tags
     public static final String SINGLE_CONFIG_TAG = "TrojanConfig";
     public static final String CONFIG_LIST_TAG = "TrojanConfigList";
 
+    private static TrojanConfig instance;
+    private static JSONObject defaultJSON;
+
+
+    // Object Scoped members
     File filename;
     private String localAddr;
     private int localPort;
@@ -45,11 +56,20 @@ public class TrojanConfig implements Parcelable {
 
     private JSONObject json;
 
-    private static TrojanConfig instance;
 
     // Global Config
     public static void init(Context context) {
         Storage storage = Storage.getSharedInstance(context);
+        try {
+            Resources res = context.getResources();
+            InputStream inputStream = res.openRawResource(R.raw.config);
+
+            byte[] b = new byte[inputStream.available()];
+            inputStream.read(b);
+            defaultJSON = new JSONObject(new String(b));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         TrojanConfig trojanConfig = new TrojanConfig().setCaCertPath(storage.getCaCertPath());
         setInstance(trojanConfig);
     }
@@ -67,7 +87,7 @@ public class TrojanConfig implements Parcelable {
     private void construct() {
         // defaults
         this.localAddr = "127.0.0.1";
-        this.localPort = 1081;
+        this.localPort = 1080;
         this.remotePort = 443;
         this.verifyCert = true;
         this.cipherList = "ECDHE-ECDSA-AES128-GCM-SHA256:"
