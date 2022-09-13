@@ -40,6 +40,7 @@ import io.github.trojan_gfw.igniter.connection.TrojanConnection;
 import io.github.trojan_gfw.igniter.exempt.activity.ExemptAppActivity;
 import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
+import io.github.trojan_gfw.igniter.persistence.TrojanPreferences;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanService;
 import io.github.trojan_gfw.igniter.servers.activity.ServerListActivity;
 import io.github.trojan_gfw.igniter.servers.data.ServerListDataManager;
@@ -54,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
     private static final int SERVER_LIST_CHOOSE_REQUEST_CODE = 1024;
     private static final int EXEMPT_APP_CONFIGURE_REQUEST_CODE = 2077;
     private static final String CONNECTION_TEST_URL = "https://www.google.com";
+
+    TrojanPreferences trojanPreferences;
 
     private ViewGroup rootViewGroup;
     private EditText remoteAddrText;
@@ -175,6 +178,9 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        trojanPreferences = new TrojanPreferences(this);
+
         rootViewGroup = findViewById(R.id.rootScrollView);
         Button saveServerIb = findViewById(R.id.saveConfigBtn);
         remoteAddrText = findViewById(R.id.remoteAddrText);
@@ -225,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 TrojanConfig ins = TrojanConfig.getInstance();
-                ins.setEnableIpv6(isChecked);
+                trojanPreferences.setEnableIPV6(isChecked);
             }
         });
 
@@ -504,7 +510,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                     }
                 });
                 trojanURLText.setText(TrojanConfig.toURIString(config));
-                ipv6Switch.setChecked(config.getEnableIpv6());
+                ipv6Switch.setChecked(trojanPreferences.getEnableIPV6());
                 verifySwitch.setChecked(config.getVerifyCert());
             }
         } else if (EXEMPT_APP_CONFIGURE_REQUEST_CODE == requestCode && Activity.RESULT_OK == resultCode) {
@@ -575,7 +581,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                     remoteAddrText.setText(ins.getRemoteAddr());
                     remotePortText.setText(String.valueOf(ins.getRemotePort()));
                     passwordText.setText(ins.getPassword());
-                    ipv6Switch.setChecked(ins.getEnableIpv6());
+                    ipv6Switch.setChecked(trojanPreferences.getEnableIPV6());
                     verifySwitch.setChecked(ins.getVerifyCert());
                     remoteAddrText.setSelection(remoteAddrText.length());
                 }
