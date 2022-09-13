@@ -7,10 +7,10 @@ import android.text.TextUtils;
 import java.util.LinkedList;
 import java.util.List;
 
+import io.github.trojan_gfw.igniter.IgniterApplication;
 import io.github.trojan_gfw.igniter.LogHelper;
 import io.github.trojan_gfw.igniter.common.os.Task;
 import io.github.trojan_gfw.igniter.common.os.Threads;
-import io.github.trojan_gfw.igniter.common.utils.ProcessUtils;
 
 /**
  * Helper class of application initializations. You can just extend {@link Initializer} to create your
@@ -42,7 +42,8 @@ public class InitializerHelper {
     }
 
     public static void runInit(Context context) {
-        final String processName = ProcessUtils.getProcessNameByPID(context, Process.myPid());
+        final String processName =
+                IgniterApplication.getApplication().getProcessName(Process.myPid());
         if (isToolProcess(processName)) {
             registerToolsInitializers();
         } else if (isProxyProcess(processName)) {

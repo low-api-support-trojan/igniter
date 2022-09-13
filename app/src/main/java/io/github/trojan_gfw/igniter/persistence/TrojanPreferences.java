@@ -23,7 +23,6 @@ public class TrojanPreferences {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(KEY_ENABLE_IPV6, enableIPV6);
         editor.commit();
-
     }
 
     public boolean getEnableIPV6() {

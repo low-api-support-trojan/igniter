@@ -30,7 +30,6 @@ import java.util.Set;
 import clash.Clash;
 import clash.ClashStartOptions;
 import freeport.Freeport;
-import io.github.trojan_gfw.igniter.common.utils.PermissionUtils;
 import io.github.trojan_gfw.igniter.connection.TestConnection;
 import io.github.trojan_gfw.igniter.exempt.data.ExemptAppDataManager;
 import io.github.trojan_gfw.igniter.exempt.data.ExemptAppDataSource;
@@ -212,7 +211,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
     }
 
     private Set<String> getExemptAppPackageNames() {
-        if (!PermissionUtils.hasReadWriteExtStoragePermission(this)) {
+        if (!IgniterApplication.getApplication().storage.isExteranlWritable()) {
             return Collections.emptySet();
         }
         if (mExemptAppDataSource == null) {

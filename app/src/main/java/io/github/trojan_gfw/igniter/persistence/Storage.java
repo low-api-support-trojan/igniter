@@ -1,7 +1,11 @@
 package io.github.trojan_gfw.igniter.persistence;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Environment;
+
+import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,7 +44,7 @@ public class Storage {
         try {
             File file = new File(filename);
             FileInputStream fis = new FileInputStream(file);
-            int length = (int)file.length();
+            int length = (int) file.length();
             byte[] content = new byte[length];
             int readBytes = fis.read(content);
             assert readBytes == length;
@@ -57,6 +61,7 @@ public class Storage {
     public String getClashConfigPath() {
         return getPath(FILES, context.getString(R.string.clash_config));
     }
+
     public String getTrojanConfigPath() {
         return getPath(FILES, context.getString(R.string.trojan_config));
     }
@@ -64,11 +69,26 @@ public class Storage {
     public String getTrojanConfigListPath() {
         return getPath(FILES, context.getString(R.string.trojan_list_config));
     }
+
     public String getExemptedAppListPath() {
         return getPath(EXTERNAL, context.getString(R.string.exempted_app_list_config));
     }
 
     public String getCaCertPath() {
         return getPath(CACHE, context.getString(R.string.ca_cert_config));
+    }
+
+    public boolean isExteranlWritable() {
+        String[] permissions = {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        };
+        for (int i = 0; i < permissions.length; i++) {
+            if (ContextCompat.checkSelfPermission(context, permissions[i]) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
     }
 }

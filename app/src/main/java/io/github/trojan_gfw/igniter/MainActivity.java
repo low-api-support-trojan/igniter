@@ -34,7 +34,6 @@ import java.io.InputStream;
 import io.github.trojan_gfw.igniter.common.os.MultiProcessSP;
 import io.github.trojan_gfw.igniter.common.os.Task;
 import io.github.trojan_gfw.igniter.common.os.Threads;
-import io.github.trojan_gfw.igniter.common.utils.PermissionUtils;
 import io.github.trojan_gfw.igniter.common.utils.SnackbarUtils;
 import io.github.trojan_gfw.igniter.connection.TrojanConnection;
 import io.github.trojan_gfw.igniter.exempt.activity.ExemptAppActivity;
@@ -349,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         });
         serverListDataManager = new ServerListDataManager(app.storage.getTrojanConfigListPath());
         connection.connect(this, this);
-        if (!PermissionUtils.hasReadWriteExtStoragePermission(this) && ActivityCompat
+        if (!app.storage.isExteranlWritable() && ActivityCompat
                 .shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             requestReadWriteExternalStoragePermission();
         }
@@ -549,7 +548,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                 startActivityForResult(ServerListActivity.create(MainActivity.this), SERVER_LIST_CHOOSE_REQUEST_CODE);
                 return true;
             case R.id.action_exempt_app:
-                if (PermissionUtils.hasReadWriteExtStoragePermission(this)) {
+                if (app.storage.isExteranlWritable()) {
                     startActivityForResult(ExemptAppActivity.create(this), EXEMPT_APP_CONFIGURE_REQUEST_CODE);
                 } else {
                     if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
