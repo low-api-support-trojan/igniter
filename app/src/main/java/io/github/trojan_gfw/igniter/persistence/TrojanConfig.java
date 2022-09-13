@@ -83,7 +83,16 @@ public class TrojanConfig implements Parcelable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        TrojanConfig trojanConfig = new TrojanConfig().setCaCertPath(storage.getCaCertPath());
+
+        String filename = storage.getTrojanConfigPath();
+        TrojanConfig trojanConfig = TrojanConfig.read(filename);
+
+        if (trojanConfig == null) {
+            trojanConfig = new TrojanConfig().fromJSON(defaultJSON);
+            TrojanConfig.write(trojanConfig, filename);
+        }
+
+        trojanConfig.setCaCertPath(storage.getCaCertPath());
         setInstance(trojanConfig);
     }
 

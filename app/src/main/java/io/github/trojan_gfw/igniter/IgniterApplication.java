@@ -27,12 +27,15 @@ public class IgniterApplication extends Application {
 
     // Sharable Singletons
     public Storage storage;
+    public TrojanConfig trojanConfig;
 
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
         storage = new Storage(this);
+        TrojanConfig.init(storage);
+        trojanConfig = TrojanConfig.getInstance();
         runInit(this);
     }
 
@@ -52,33 +55,9 @@ public class IgniterApplication extends Application {
     }
 
     public void runInit(Context context) {
-        final String processName =
-                IgniterApplication.getApplication().getProcessName(Process.myPid());
-
-        if (TextUtils.equals(processName, PROCESS_ID_TOOL)) {
-            toolInit();
-        } else if (TextUtils.equals(processName, PROCESS_ID_PROXY)) {
-            proxyInit();
-        } else {
-            mainInit();
+        final String processName = IgniterApplication.getApplication().getProcessName(Process.myPid());
+        if (!TextUtils.equals(processName, PROCESS_ID_PROXY)) {
+            MultiProcessSP.init(this);
         }
-    }
-
-    public void proxyInit() {
-        TrojanConfig cacheConfig = TrojanConfig.read(storage.getTrojanConfigPath());
-        if (cacheConfig != null) {
-            cacheConfig.setCaCertPath(storage.getCaCertPath());
-            TrojanConfig.setInstance(cacheConfig);
-        }
-    }
-
-    public void toolInit() {
-        MultiProcessSP.init(this);
-        TrojanConfig.init(storage);
-    }
-
-    public void mainInit() {
-        MultiProcessSP.init(this);
-        TrojanConfig.init(storage);
     }
 }
