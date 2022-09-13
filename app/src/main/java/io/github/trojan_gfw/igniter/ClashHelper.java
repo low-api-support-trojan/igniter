@@ -7,7 +7,7 @@ import java.util.regex.*;
 
 public class ClashHelper {
 
-    private static final String TAG = "ClashConfig";
+    public static final String TAG = "ClashConfig";
 
     // In general, we capture only one group for replacement
     public static final Pattern clashSocksPortPattern = Pattern.compile("^socks.*port:\\s+(\\d+)", Pattern.MULTILINE);
@@ -46,23 +46,6 @@ public class ClashHelper {
                 LogHelper.e(TAG, "fail to rename tmp clash config file");
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void ShowConfig(String clashConfigPath) {
-        File file = new File(clashConfigPath);
-
-        try {
-            try (FileInputStream fis = new FileInputStream(file)) {
-                StringBuilder sb = new StringBuilder();
-                byte[] content = new byte[(int) file.length()];
-                fis.read(content);
-                sb.append("\r\n");
-                sb.append(new String(content));
-                LogHelper.v(TAG, sb.toString());
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }

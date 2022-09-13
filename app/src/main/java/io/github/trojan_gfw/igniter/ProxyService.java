@@ -61,6 +61,7 @@ import tun2socks.Tun2socksStartOptions;
  */
 public class ProxyService extends VpnService implements TestConnection.OnResultListener {
     private static final String TAG = "ProxyService";
+
     public static final int STATE_NONE = -1;
     public static final int STARTING = 0;
     public static final int STARTED = 1;
@@ -70,6 +71,8 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
     public static final int IGNITER_STATUS_NOTIFY_MSG_ID = 114514;
     public long tun2socksPort;
     public boolean enable_clash = false;
+
+    public IgniterApplication app;
 
     @IntDef({STATE_NONE, STARTING, STARTED, STOPPING, STOPPED})
     public @interface ProxyState {
@@ -153,6 +156,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         IntentFilter filter = new IntentFilter();
         filter.addAction(getString(R.string.stop_service));
         registerReceiver(mStopBroadcastReceiver, filter);
+        app = IgniterApplication.getApplication();
     }
 
     @Override
@@ -356,8 +360,8 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
                 LogHelper.i("igniter", "clash port is " + clashSocksPort);
                 ClashHelper.ChangeClashConfig(storage.getClashConfigPath(),
                         trojanPort, clashSocksPort);
-                ClashHelper.ShowConfig(storage.getClashConfigPath());
-//                Clash.start(getFilesDir().toString());
+
+                app.storage.print(storage.getClashConfigPath(), ClashHelper.TAG);
                 ClashStartOptions clashStartOptions = new ClashStartOptions();
                 clashStartOptions.setHomeDir(getFilesDir().toString());
                 clashStartOptions.setTrojanProxyServer("127.0.0.1:" + trojanPort);
