@@ -98,47 +98,9 @@ public class TrojanConfig implements Parcelable {
 
 
     // Local Config
-    private void construct() {
-        // defaults
-        try {
-//            this.localAddr = "127.0.0.1";
-            this.localAddr = defaultJSON.getString(KEY_LOCAL_ADDR);
-            //this.localPort = 1080;
-            this.localPort = defaultJSON.getInt(KEY_LOCAL_PORT);
-//            this.remotePort = 443;
-            this.remotePort = defaultJSON.getInt(KEY_REMOTE_PORT);
-            JSONObject ssl = defaultJSON.getJSONObject(KEY_SSL);
-            this.verifyCert = ssl.getBoolean(KEY_VERIFY_CERT);
-
-//            this.verifyCert = true;
-            this.cipherList = ssl.getString(KEY_CIPHER_LIST);
-//            this.cipherList = "ECDHE-ECDSA-AES128-GCM-SHA256:"
-//                    + "ECDHE-RSA-AES128-GCM-SHA256:"
-//                    + "ECDHE-ECDSA-CHACHA20-POLY1305:"
-//                    + "ECDHE-RSA-CHACHA20-POLY1305:"
-//                    + "ECDHE-ECDSA-AES256-GCM-SHA384:"
-//                    + "ECDHE-RSA-AES256-GCM-SHA384:"
-//                    + "ECDHE-ECDSA-AES256-SHA:"
-//                    + "ECDHE-ECDSA-AES128-SHA:"
-//                    + "ECDHE-RSA-AES128-SHA:"
-//                    + "ECDHE-RSA-AES256-SHA:"
-//                    + "DHE-RSA-AES128-SHA:"
-//                    + "DHE-RSA-AES256-SHA:"
-//                    + "AES128-SHA:"
-//                    + "AES256-SHA:"
-//                    + "DES-CBC3-SHA";
-
-            this.tls13CipherList = ssl.getString(KEY_TLS13_CIPHER_LIST);
-//            this.tls13CipherList = "TLS_AES_128_GCM_SHA256:"
-//                    + "TLS_CHACHA20_POLY1305_SHA256:"
-//                    + "TLS_AES_256_GCM_SHA384";
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
 
     public TrojanConfig() {
-        construct();
+        this.fromJSON(defaultJSON);
     }
 
     // Parcel processing
@@ -188,53 +150,45 @@ public class TrojanConfig implements Parcelable {
 
     // JSON Processing
     public JSONObject toJSON() throws JSONException {
-        return new JSONObject()
-                .put("local_addr", this.localAddr)
-                .put("local_port", this.localPort)
-                .put("remote_addr", this.remoteAddr)
-                .put("remote_port", this.remotePort)
-                .put("password", new JSONArray().put(password))
-                .put("log_level", 2) // WARN
-                .put("ssl", new JSONObject()
-                        .put("verify", this.verifyCert)
-                        .put("cert", this.caCertPath)
-                        .put("cipher", this.cipherList)
-                        .put("cipher_tls13", this.tls13CipherList)
-                        .put("alpn", new JSONArray().put("h2").put("http/1.1")));
+        json.put(KEY_LOCAL_ADDR, this.localAddr);
+        json.put(KEY_LOCAL_PORT, this.localPort);
+        json.put(KEY_REMOTE_ADDR, this.remoteAddr);
+        json.put(KEY_REMOTE_PORT, this.remotePort);
+        json.put(KEY_PASSWORD, new JSONArray().put(this.password));
+        JSONObject ssl = json.getJSONObject(KEY_SSL);
+        ssl.put(KEY_VERIFY_CERT, this.verifyCert);
+        ssl.put(KEY_CA_CERT_PATH, this.caCertPath);
+        ssl.put(KEY_CIPHER_LIST, this.cipherList);
+        ssl.put(KEY_TLS13_CIPHER_LIST, this.tls13CipherList);
+        return json;
     }
 
     public String toJSONString() throws JSONException {
         return toJSON().toString();
     }
 
-    public TrojanConfig fromJSON(JSONObject json) throws JSONException {
-        this.json = json;
-        this.setLocalAddr(json.getString("local_addr"))
-                .setLocalPort(json.getInt("local_port"))
-                .setRemoteAddr(json.getString("remote_addr"))
-                .setRemotePort(json.getInt("remote_port"))
-                .setPassword(json.getJSONArray("password").getString(0))
-                .setVerifyCert(json.getJSONObject("ssl").getBoolean("verify"));
+    public TrojanConfig fromJSON(JSONObject from)  {
+        try {
+            json = new JSONObject(from.toString());
+            this.localAddr = json.getString(KEY_LOCAL_ADDR);
+            this.localPort = json.getInt(KEY_LOCAL_PORT);
+            this.remoteAddr = json.getString(KEY_REMOTE_ADDR);
+            this.remotePort = json.getInt(KEY_REMOTE_PORT);
+            this.password = json.getJSONArray(KEY_PASSWORD).getString(0);
+            JSONObject ssl = json.getJSONObject(KEY_SSL);
+            this.verifyCert = ssl.getBoolean(KEY_VERIFY_CERT);
+            this.caCertPath = ssl.getString(KEY_CA_CERT_PATH);
+            this.cipherList = ssl.getString(KEY_CIPHER_LIST);
+            this.tls13CipherList = ssl.getString(KEY_TLS13_CIPHER_LIST);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         return this;
     }
 
     public TrojanConfig fromJSONString(String jsonString) throws JSONException {
         JSONObject jsonObject = new JSONObject(jsonString);
         return this.fromJSON(jsonObject);
-    }
-
-    public void copyFrom(TrojanConfig that) {
-        this
-                .setLocalAddr(that.localAddr)
-                .setLocalPort(that.localPort)
-                .setRemoteAddr(that.remoteAddr)
-                .setRemotePort(that.remotePort)
-                .setPassword(that.password)
-                .setVerifyCert(that.verifyCert)
-                .setCaCertPath(that.caCertPath)
-                .setCipherList(that.cipherList)
-                .setTls13CipherList(that.tls13CipherList);
-
     }
 
     public boolean isValidRunningConfig() {
