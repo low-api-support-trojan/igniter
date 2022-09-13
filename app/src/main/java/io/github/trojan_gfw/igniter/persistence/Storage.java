@@ -4,7 +4,9 @@ import android.content.Context;
 import android.os.Environment;
 
 import java.io.File;
+import java.io.FileInputStream;
 
+import io.github.trojan_gfw.igniter.LogHelper;
 import io.github.trojan_gfw.igniter.R;
 
 public class Storage {
@@ -41,6 +43,18 @@ public class Storage {
                 return new File(dirs[type], filename).getPath();
             default:
                 return null;
+        }
+    }
+
+    public static void print(String filename, String tag) {
+        try {
+            File file = new File(filename);
+            FileInputStream fis = new FileInputStream(file);
+            byte[] content = new byte[(int) file.length()];
+            fis.read(content);
+            LogHelper.v(tag, new String(content));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

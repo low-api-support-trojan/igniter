@@ -334,19 +334,6 @@ public class TrojanConfig implements Parcelable {
         }
     }
 
-
-    public static void show(String filename, String tag) {
-        try {
-            File file = new File(filename);
-            FileInputStream fis = new FileInputStream(file);
-                byte[] content = new byte[(int) file.length()];
-                fis.read(content);
-                LogHelper.v(tag, new String(content));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public static <T> void update(String trojanConfigPath, String key, T v) {
         File file = new File(trojanConfigPath);
         if (file.exists()) {

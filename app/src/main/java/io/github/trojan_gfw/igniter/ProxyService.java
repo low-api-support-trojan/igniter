@@ -339,7 +339,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         }
         LogHelper.i("Igniter", "trojan port is " + trojanPort);
         TrojanConfig.update(Storage.getSharedInstance(this).getTrojanConfigPath(), "local_port", trojanPort);
-        TrojanConfig.show(Storage.getSharedInstance(this).getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
+        Storage.print(Storage.getSharedInstance(this).getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
         JNIHelper.trojan(Storage.getSharedInstance(this).getTrojanConfigPath());
 
         long clashSocksPort = 1080; // default value in case fail to get free port

@@ -31,7 +31,7 @@ public abstract class ProxyHelper {
         }
         cacheConfig.setCaCertPath(storage.getCaCertPath());
         if (BuildConfig.DEBUG) {
-            TrojanConfig.show(storage.getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
+            Storage.print(storage.getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
         }
         return cacheConfig.isValidRunningConfig();
     }

@@ -3,6 +3,7 @@ package io.github.trojan_gfw.igniter.servers.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 
 public class ServerListDataManager implements ServerListDataSource {
@@ -49,6 +50,6 @@ public class ServerListDataManager implements ServerListDataSource {
     @Override
     public void replaceServerConfigs(List<TrojanConfig> list) {
         TrojanConfig.writeList(list, mConfigFilePath);
-        TrojanConfig.show(mConfigFilePath, TrojanConfig.CONFIG_LIST_TAG);
+        Storage.print(mConfigFilePath, TrojanConfig.CONFIG_LIST_TAG);
     }
 }

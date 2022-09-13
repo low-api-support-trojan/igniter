@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
     private static final String CONNECTION_TEST_URL = "https://www.google.com";
 
     TrojanPreferences trojanPreferences;
+    TrojanConfig trojanConfig;
 
     private ViewGroup rootViewGroup;
     private EditText remoteAddrText;
@@ -181,6 +182,9 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
 
         trojanPreferences = new TrojanPreferences(this);
 
+        trojanConfig = new TrojanConfig();
+
+
         rootViewGroup = findViewById(R.id.rootScrollView);
         Button saveServerIb = findViewById(R.id.saveConfigBtn);
         remoteAddrText = findViewById(R.id.remoteAddrText);
@@ -230,7 +234,6 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         ipv6Switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                TrojanConfig ins = TrojanConfig.getInstance();
                 trojanPreferences.setEnableIPV6(isChecked);
             }
         });
@@ -312,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                             TrojanConfig.getInstance(),
                             storage.getTrojanConfigPath()
                     );
-                    TrojanConfig.show(storage.getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
+                    Storage.print(storage.getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
                     // start ProxyService
                     Intent i = VpnService.prepare(getApplicationContext());
                     if (i != null) {
