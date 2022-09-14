@@ -359,9 +359,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
                 while (clashSocksPort == trojanPort);
 
                 LogHelper.i("igniter", "clash port is " + clashSocksPort);
-
                 app.clashConfig.updatePort((int)clashSocksPort, (int)trojanPort);
-                app.storage.print(storage.getClashConfigPath(), ClashConfig.TAG);
                 ClashStartOptions clashStartOptions = new ClashStartOptions();
                 clashStartOptions.setHomeDir(getFilesDir().toString());
                 clashStartOptions.setTrojanProxyServer("127.0.0.1:" + trojanPort);

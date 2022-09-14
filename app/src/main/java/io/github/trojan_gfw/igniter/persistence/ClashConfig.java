@@ -4,10 +4,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +20,9 @@ public class ClashConfig {
     private static String KEY_PORT = "port";
     private static String KEY_TROJAN_NAME = "trojan";
 
+    private static int DEFAULT_PORT = 1080;
+    private static int DEFAULT_TROJAN_PORT = 1081;
+
     private String filename;
     private FileInputStream fileInputStream;
     Map<String, Object> data;
@@ -32,7 +34,10 @@ public class ClashConfig {
             fileInputStream = new FileInputStream(filename);
             yaml = new Yaml();
             data = (Map<String, Object>) yaml.load(fileInputStream);
+            fileInputStream.close();
         } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -48,10 +53,32 @@ public class ClashConfig {
     public void save() throws FileNotFoundException {
         PrintWriter writer = new PrintWriter(filename);
         yaml.dump(data, writer);
+        writer.close();
     }
 
     public void updatePort(int port, int proxyPort) {
         data.put(KEY_SOCKS_PORT, port);
+        List<Map<String, Object>> proxies = (List<Map<String, Object>>) data.get(KEY_PROXIES);
+        try {
+            for (int i = 0; i < proxies.size(); i++) {
+                Map<String, Object> map = proxies.get(i);
+                if (map.get(KEY_NAME).equals(KEY_TROJAN_NAME)) {
+                    map.put(KEY_PORT, proxyPort);
+                    proxies.set(i, map);
+                }
+            }
+            data.put(KEY_PROXIES, proxies);
+            save();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getPort() {
+        return (int) data.get(KEY_SOCKS_PORT);
+    }
+
+    public int getTrojanPort() {
         List<String> proxies = (List<String>) data.get(KEY_PROXIES);
         try {
             for (int i = 0; i < proxies.toArray().length; i++) {
@@ -59,15 +86,12 @@ public class ClashConfig {
                 JSONObject json = new JSONObject(jsonStr);
                 String name = json.getString(KEY_NAME);
                 if (name.equals(KEY_TROJAN_NAME)) {
-                    json.put(KEY_PORT, proxyPort);
-                    jsonStr = json.toString();
-                    proxies.set(i, jsonStr);
+                    return json.getInt(KEY_PORT);
                 }
             }
-            data.put(KEY_PROXIES, proxies);
-            save();
-        } catch (FileNotFoundException | JSONException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
+        return DEFAULT_TROJAN_PORT;
     }
 }
