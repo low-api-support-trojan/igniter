@@ -1,21 +1,7 @@
 package io.github.trojan_gfw.igniter.exempt.fragment;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentActivity;
-import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,10 +9,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
-import java.util.Objects;
 
 import io.github.trojan_gfw.igniter.R;
 import io.github.trojan_gfw.igniter.common.app.BaseFragment;
@@ -84,12 +80,7 @@ public class ExemptAppFragment extends BaseFragment implements ExemptAppContract
     }
 
     private void initListeners() {
-        mAppInfoAdapter.setOnItemOperationListener(new AppInfoAdapter.OnItemOperationListener() {
-            @Override
-            public void onToggle(boolean exempt, AppInfo appInfo, int position) {
-                mPresenter.updateAppInfo(appInfo, position, exempt);
-            }
-        });
+        mAppInfoAdapter.setOnItemOperationListener((exempt, appInfo, position) -> mPresenter.updateAppInfo(appInfo, position, exempt));
     }
 
     @Override
@@ -130,12 +121,7 @@ public class ExemptAppFragment extends BaseFragment implements ExemptAppContract
     @Override
     public void showSaveSuccess() {
         Snackbar.make(mRootView, R.string.common_save_success, Snackbar.LENGTH_SHORT).setAction(R.string.exempt_app_exit,
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mPresenter.exit();
-                    }
-                }).show();
+                v -> mPresenter.exit()).show();
     }
 
     @Override
@@ -143,18 +129,10 @@ public class ExemptAppFragment extends BaseFragment implements ExemptAppContract
         new AlertDialog.Builder(mContext)
                 .setTitle(R.string.common_alert)
                 .setMessage(R.string.exempt_app_exit_without_saving_confirm)
-                .setNegativeButton(R.string.common_cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .setPositiveButton(R.string.common_confirm, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        mPresenter.exit();
-                    }
+                .setNegativeButton(R.string.common_cancel, (dialog, which) -> dialog.dismiss())
+                .setPositiveButton(R.string.common_confirm, (dialog, which) -> {
+                    dialog.dismiss();
+                    mPresenter.exit();
                 }).create().show();
     }
 
@@ -166,7 +144,7 @@ public class ExemptAppFragment extends BaseFragment implements ExemptAppContract
     @Override
     public void showLoading() {
         if (mLoadingDialog == null) {
-            mLoadingDialog = new LoadingDialog(Objects.requireNonNull(getContext()));
+            mLoadingDialog = new LoadingDialog(requireContext());
             mLoadingDialog.setMsg(getString(R.string.exempt_app_loading_tip));
         }
         mLoadingDialog.show();
