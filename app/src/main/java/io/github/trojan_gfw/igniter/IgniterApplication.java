@@ -10,9 +10,9 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 
-import io.github.trojan_gfw.igniter.common.os.MultiProcessSP;
 import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
+import io.github.trojan_gfw.igniter.persistence.TrojanPreferences;
 
 public class IgniterApplication extends Application {
 
@@ -28,6 +28,7 @@ public class IgniterApplication extends Application {
     // Sharable Singletons
     public Storage storage;
     public TrojanConfig trojanConfig;
+    public TrojanPreferences trojanPreferences;
 
     @Override
     public void onCreate() {
@@ -36,6 +37,7 @@ public class IgniterApplication extends Application {
         storage = new Storage(this);
         TrojanConfig.init(storage);
         trojanConfig = TrojanConfig.getInstance();
+        trojanPreferences = new TrojanPreferences(this);
         runInit(this);
     }
 
@@ -56,8 +58,5 @@ public class IgniterApplication extends Application {
 
     public void runInit(Context context) {
         final String processName = IgniterApplication.getApplication().getProcessName(Process.myPid());
-        if (!TextUtils.equals(processName, PROCESS_ID_PROXY)) {
-            MultiProcessSP.init(this);
-        }
     }
 }

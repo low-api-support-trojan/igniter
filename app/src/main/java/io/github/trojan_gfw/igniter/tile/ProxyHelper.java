@@ -12,7 +12,6 @@ import io.github.trojan_gfw.igniter.ProxyService;
 import io.github.trojan_gfw.igniter.R;
 import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
-import io.github.trojan_gfw.igniter.common.os.MultiProcessSP;
 
 /**
  * Helper class for starting or stopping {@link ProxyService}. Before starting {@link ProxyService},
@@ -29,8 +28,9 @@ public abstract class ProxyHelper {
     }
 
     public static void startProxyService(Context context) {
+        IgniterApplication app = IgniterApplication.getApplication();
         Intent intent = new Intent(context, ProxyService.class);
-        intent.putExtra(ProxyService.CLASH_EXTRA_NAME, MultiProcessSP.getEnableClash(true));
+        intent.putExtra(ProxyService.CLASH_EXTRA_NAME, app.trojanPreferences.getEnableClash(true));
         ContextCompat.startForegroundService(context, intent);
     }
 

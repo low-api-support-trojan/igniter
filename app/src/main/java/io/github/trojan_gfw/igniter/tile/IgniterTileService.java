@@ -8,13 +8,12 @@ import android.service.quicksettings.TileService;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import io.github.trojan_gfw.igniter.IgniterApplication;
 import io.github.trojan_gfw.igniter.LogHelper;
 import io.github.trojan_gfw.igniter.MainActivity;
 import io.github.trojan_gfw.igniter.ProxyService;
 import io.github.trojan_gfw.igniter.R;
-import io.github.trojan_gfw.igniter.common.os.MultiProcessSP;
 import io.github.trojan_gfw.igniter.connection.TrojanConnection;
-import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanService;
 
 /**
@@ -124,7 +123,9 @@ public class IgniterTileService extends TileService implements TrojanConnection.
     public void onClick() {
         super.onClick();
         LogHelper.i(TAG, "onClick");
-        if (MultiProcessSP.isFirstStart(true)) {
+        IgniterApplication app = IgniterApplication.getApplication();
+
+        if (app.trojanPreferences.isFirstStart()) {
             // if user never open Igniter before, when he/she clicks the tile, it is necessary
             // to start the launcher activity for resource preparation.
             Intent intent = new Intent(this, MainActivity.class);
@@ -163,8 +164,8 @@ public class IgniterTileService extends TileService implements TrojanConnection.
      * Start ProxyService if everything is ready. Otherwise start the launcher Activity.
      */
     private void startProxyService() {
-
-        if (TrojanConfig.getInstance().isValidRunningConfig() && ProxyHelper.isVPNServiceConsented(this)) {
+        IgniterApplication app = IgniterApplication.getApplication();
+        if (app.trojanConfig.isValidRunningConfig() && ProxyHelper.isVPNServiceConsented(this)) {
             ProxyHelper.startProxyService(this);
         } else {
             ProxyHelper.startLauncherActivity(this);

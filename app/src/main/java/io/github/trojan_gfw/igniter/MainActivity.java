@@ -26,14 +26,14 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
-import io.github.trojan_gfw.igniter.common.os.MultiProcessSP;
 import io.github.trojan_gfw.igniter.common.os.Task;
 import io.github.trojan_gfw.igniter.common.os.Threads;
-import io.github.trojan_gfw.igniter.common.utils.SnackbarUtils;
 import io.github.trojan_gfw.igniter.connection.TrojanConnection;
 import io.github.trojan_gfw.igniter.exempt.activity.ExemptAppActivity;
 import io.github.trojan_gfw.igniter.persistence.Storage;
@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
     private static final int EXEMPT_APP_CONFIGURE_REQUEST_CODE = 2077;
     private static final String CONNECTION_TEST_URL = "https://www.google.com";
 
-    TrojanPreferences trojanPreferences;
     TrojanConfig trojanConfig;
     IgniterApplication app;
 
@@ -178,10 +177,6 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        trojanPreferences = new TrojanPreferences(this);
-
-        trojanConfig = new TrojanConfig();
         app = IgniterApplication.getApplication();
 
 
@@ -219,11 +214,11 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             }
         });
 
-        clashSwitch.setChecked(MultiProcessSP.getEnableClash(true));
+        clashSwitch.setChecked(app.trojanPreferences.getEnableClash(true));
         clashSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                MultiProcessSP.setEnableClash(isChecked);
+                app.trojanPreferences.setEnableClash(isChecked);
             }
         });
 
@@ -232,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         ipv6Switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                trojanPreferences.setEnableIPV6(isChecked);
+                app.trojanPreferences.setEnableIPV6(isChecked);
             }
         });
 
@@ -510,12 +505,12 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                     }
                 });
                 trojanURLText.setText(TrojanConfig.toURIString(config));
-                ipv6Switch.setChecked(trojanPreferences.getEnableIPV6());
+                ipv6Switch.setChecked(app.trojanPreferences.getEnableIPV6());
                 verifySwitch.setChecked(config.getVerifyCert());
             }
         } else if (EXEMPT_APP_CONFIGURE_REQUEST_CODE == requestCode && Activity.RESULT_OK == resultCode) {
             if (ProxyService.STARTED == proxyState) {
-                SnackbarUtils.showTextLong(rootViewGroup, R.string.main_restart_proxy_service_tip);
+                Snackbar.make(rootViewGroup, R.string.main_restart_proxy_service_tip, Snackbar.LENGTH_LONG).show();
             }
         } else if (VPN_REQUEST_CODE == requestCode && RESULT_OK == resultCode) {
             ProxyHelper.startProxyService(getApplicationContext());
@@ -554,7 +549,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
                                 Manifest.permission.WRITE_EXTERNAL_STORAGE}, READ_WRITE_EXT_STORAGE_PERMISSION_REQUEST);
                     } else {
-                        SnackbarUtils.showTextLong(rootViewGroup, R.string.main_exempt_feature_permission_requirement);
+                        Snackbar.make(rootViewGroup, R.string.main_exempt_feature_permission_requirement, Snackbar.LENGTH_LONG).show();
                     }
                 }
                 return true;
@@ -571,7 +566,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         remoteAddrText.setText(trojanConfig.getRemoteAddr());
         remotePortText.setText(String.valueOf(trojanConfig.getRemotePort()));
         passwordText.setText(trojanConfig.getPassword());
-        ipv6Switch.setChecked(trojanPreferences.getEnableIPV6());
+        ipv6Switch.setChecked(app.trojanPreferences.getEnableIPV6());
         verifySwitch.setChecked(trojanConfig.getVerifyCert());
         remoteAddrText.setSelection(remoteAddrText.length());
     }

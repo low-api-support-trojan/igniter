@@ -23,13 +23,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.List;
 import java.util.Objects;
 
 import io.github.trojan_gfw.igniter.R;
 import io.github.trojan_gfw.igniter.common.app.BaseFragment;
 import io.github.trojan_gfw.igniter.common.dialog.LoadingDialog;
-import io.github.trojan_gfw.igniter.common.utils.SnackbarUtils;
 import io.github.trojan_gfw.igniter.exempt.adapter.AppInfoAdapter;
 import io.github.trojan_gfw.igniter.exempt.contract.ExemptAppContract;
 import io.github.trojan_gfw.igniter.exempt.data.AppInfo;
@@ -128,12 +129,13 @@ public class ExemptAppFragment extends BaseFragment implements ExemptAppContract
 
     @Override
     public void showSaveSuccess() {
-        SnackbarUtils.showTextShort(mRootView, R.string.common_save_success, R.string.exempt_app_exit, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mPresenter.exit();
-            }
-        });
+        Snackbar.make(mRootView, R.string.common_save_success, Snackbar.LENGTH_SHORT).setAction(R.string.exempt_app_exit,
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mPresenter.exit();
+                    }
+                }).show();
     }
 
     @Override
