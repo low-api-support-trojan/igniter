@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             }
         });
 
-        clashSwitch.setChecked(app.trojanPreferences.getEnableClash(true));
+        clashSwitch.setChecked(app.trojanPreferences.getEnableClash());
         clashSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

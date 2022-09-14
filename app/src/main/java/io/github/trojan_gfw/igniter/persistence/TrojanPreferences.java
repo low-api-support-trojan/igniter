@@ -70,7 +70,7 @@ public class TrojanPreferences {
         setBoolean(KEY_FIRST_START, firstStart);
     }
 
-    public boolean getEnableClash(boolean fallback) {
+    public boolean getEnableClash() {
         return enableClash;
     }
     public void setEnableClash(boolean enableClash) {
