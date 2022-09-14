@@ -33,6 +33,7 @@ import freeport.Freeport;
 import io.github.trojan_gfw.igniter.connection.TestConnection;
 import io.github.trojan_gfw.igniter.exempt.data.ExemptAppDataManager;
 import io.github.trojan_gfw.igniter.exempt.data.ExemptAppDataSource;
+import io.github.trojan_gfw.igniter.persistence.ClashConfig;
 import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanService;
@@ -358,10 +359,9 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
                 while (clashSocksPort == trojanPort);
 
                 LogHelper.i("igniter", "clash port is " + clashSocksPort);
-                ClashHelper.ChangeClashConfig(storage.getClashConfigPath(),
-                        trojanPort, clashSocksPort);
 
-                app.storage.print(storage.getClashConfigPath(), ClashHelper.TAG);
+                app.clashConfig.updatePort((int)clashSocksPort, (int)trojanPort);
+                app.storage.print(storage.getClashConfigPath(), ClashConfig.TAG);
                 ClashStartOptions clashStartOptions = new ClashStartOptions();
                 clashStartOptions.setHomeDir(getFilesDir().toString());
                 clashStartOptions.setTrojanProxyServer("127.0.0.1:" + trojanPort);
