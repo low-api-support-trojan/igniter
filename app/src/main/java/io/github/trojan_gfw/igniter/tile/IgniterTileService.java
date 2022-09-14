@@ -1,6 +1,7 @@
 package io.github.trojan_gfw.igniter.tile;
 
 import android.content.Intent;
+import android.net.VpnService;
 import android.os.Build;
 import android.os.RemoteException;
 import android.service.quicksettings.Tile;
@@ -16,14 +17,6 @@ import io.github.trojan_gfw.igniter.R;
 import io.github.trojan_gfw.igniter.connection.TrojanConnection;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanService;
 
-/**
- * Igniter's implementation of TileService, showing current state of {@link ProxyService} and providing a
- * shortcut to start or stop {@link ProxyService} by the help of {@link ProxyHelper}. This
- * service receives state change by the help of {@link TrojanConnection}.
- *
- * @see ProxyService
- * @see io.github.trojan_gfw.igniter.ProxyService.ProxyState
- */
 @RequiresApi(api = Build.VERSION_CODES.N)
 public class IgniterTileService extends TileService implements TrojanConnection.Callback {
     private static final String TAG = "IgniterTile";
@@ -165,14 +158,14 @@ public class IgniterTileService extends TileService implements TrojanConnection.
      */
     private void startProxyService() {
         IgniterApplication app = IgniterApplication.getApplication();
-        if (app.trojanConfig.isValidRunningConfig() && ProxyHelper.isVPNServiceConsented(this)) {
-            ProxyHelper.startProxyService(this);
+        if (app.trojanConfig.isValidRunningConfig() && VpnService.prepare(this.getApplicationContext()) == null) {
+            MainActivity.startProxyService(this);
         } else {
-            ProxyHelper.startLauncherActivity(this);
+            MainActivity.startLauncherActivity(this);
         }
     }
 
     private void stopProxyService() {
-        ProxyHelper.stopProxyService(this);
+        MainActivity.stopProxyService(this);
     }
 }
