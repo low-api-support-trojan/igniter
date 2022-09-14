@@ -159,13 +159,14 @@ public class IgniterTileService extends TileService implements TrojanConnection.
     private void startProxyService() {
         IgniterApplication app = IgniterApplication.getApplication();
         if (app.trojanConfig.isValidRunningConfig() && VpnService.prepare(this.getApplicationContext()) == null) {
-            MainActivity.startProxyService(this);
+            app.startProxyService();
         } else {
-            MainActivity.startLauncherActivity(this);
+            app.startLauncherActivity();
         }
     }
 
     private void stopProxyService() {
-        MainActivity.stopProxyService(this);
+        IgniterApplication app = IgniterApplication.getApplication();
+        app.stopProxyService();
     }
 }
