@@ -28,6 +28,7 @@ import io.github.trojan_gfw.igniter.connection.TestConnection;
 import io.github.trojan_gfw.igniter.exempt.data.ExemptAppDataManager;
 import io.github.trojan_gfw.igniter.exempt.data.ExemptAppDataSource;
 import io.github.trojan_gfw.igniter.persistence.ClashConfig;
+import io.github.trojan_gfw.igniter.persistence.NetWorkConfig;
 import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanService;
@@ -202,12 +203,13 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
     }
 
     private Set<String> getExemptAppPackageNames() {
-        if (!IgniterApplication.getApplication().storage.isExternalWritable()) {
+        if (!app.storage.isExternalWritable()) {
             return Collections.emptySet();
         }
         if (mExemptAppDataSource == null) {
-            mExemptAppDataSource = new ExemptAppDataManager(getApplicationContext(),
-                    IgniterApplication.getApplication().storage.getExemptedAppListPath());
+            mExemptAppDataSource = new ExemptAppDataManager(
+                    getApplicationContext(),
+                    app.storage.getExemptedAppListPath());
         }
         // ensures that new exempted app list can be applied on proxy after modification.
         return mExemptAppDataSource.loadExemptAppPackageNameSet();
@@ -281,7 +283,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
             trojanPort = 1081;
         }
         LogHelper.i("Igniter", "trojan port is " + trojanPort);
-        Storage storage = IgniterApplication.getApplication().storage;
+        Storage storage = app.storage;
         TrojanConfig.update(storage.getTrojanConfigPath(), TrojanConfig.KEY_LOCAL_PORT, trojanPort);
         Storage.print(storage.getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
         JNIHelper.trojan(storage.getTrojanConfigPath());
@@ -316,22 +318,23 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         }
         LogHelper.i("igniter", "tun2socks port is " + tun2socksPort);
 
+        NetWorkConfig.tunnelProxy(fd, (int)tun2socksPort, enableIPV6, enableClash);
         // debug/info/warn/error/none
-        Tun2socksStartOptions tun2socksStartOptions = new Tun2socksStartOptions();
-        tun2socksStartOptions.setTunFd(fd);
-        tun2socksStartOptions.setSocks5Server(TUN2SOCKS5_SERVER_HOST + ":" + tun2socksPort);
-        tun2socksStartOptions.setEnableIPv6(enableIPV6);
-        tun2socksStartOptions.setMTU(VPN_MTU);
-
-        Tun2socks.setLoglevel("info");
-        if (enable_clash) {
-            tun2socksStartOptions.setFakeIPRange("198.18.0.1/16");
-        } else {
-            // Disable go-tun2socks fake ip
-            tun2socksStartOptions.setFakeIPRange("");
-        }
-        Tun2socks.start(tun2socksStartOptions);
-        LogHelper.i(TAG, tun2socksStartOptions.toString());
+//        Tun2socksStartOptions tun2socksStartOptions = new Tun2socksStartOptions();
+//        tun2socksStartOptions.setTunFd(fd);
+//        tun2socksStartOptions.setSocks5Server(TUN2SOCKS5_SERVER_HOST + ":" + tun2socksPort);
+//        tun2socksStartOptions.setEnableIPv6(enableIPV6);
+//        tun2socksStartOptions.setMTU(VPN_MTU);
+//
+//        Tun2socks.setLoglevel("info");
+//        if (enable_clash) {
+//            tun2socksStartOptions.setFakeIPRange("198.18.0.1/16");
+//        } else {
+//            // Disable go-tun2socks fake ip
+//            tun2socksStartOptions.setFakeIPRange("");
+//        }
+//        Tun2socks.start(tun2socksStartOptions);
+//        LogHelper.i(TAG, tun2socksStartOptions.toString());
 
         StringBuilder runningStatusStringBuilder = new StringBuilder();
         runningStatusStringBuilder.append("Trojan SOCKS5 port: ")
