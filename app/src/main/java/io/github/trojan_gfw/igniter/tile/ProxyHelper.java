@@ -30,7 +30,6 @@ public abstract class ProxyHelper {
     public static void startProxyService(Context context) {
         IgniterApplication app = IgniterApplication.getApplication();
         Intent intent = new Intent(context, ProxyService.class);
-        intent.putExtra(ProxyService.CLASH_EXTRA_NAME, app.trojanPreferences.getEnableClash());
         ContextCompat.startForegroundService(context, intent);
     }
 

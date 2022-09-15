@@ -20,10 +20,6 @@ import android.os.RemoteException;
 import androidx.annotation.IntDef;
 import androidx.core.app.NotificationCompat;
 
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.Collections;
 import java.util.Set;
 
@@ -33,7 +29,6 @@ import freeport.Freeport;
 import io.github.trojan_gfw.igniter.connection.TestConnection;
 import io.github.trojan_gfw.igniter.exempt.data.ExemptAppDataManager;
 import io.github.trojan_gfw.igniter.exempt.data.ExemptAppDataSource;
-import io.github.trojan_gfw.igniter.persistence.ClashConfig;
 import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanService;
@@ -68,16 +63,27 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
     public static final int STARTED = 1;
     public static final int STOPPING = 2;
     public static final int STOPPED = 3;
-    public static final String CLASH_EXTRA_NAME = "enable_clash";
     public static final int IGNITER_STATUS_NOTIFY_MSG_ID = 114514;
     public long tun2socksPort;
-    public boolean enable_clash = false;
+    public boolean enableClash = false;
 
     public IgniterApplication app;
 
     @IntDef({STATE_NONE, STARTING, STARTED, STOPPING, STOPPED})
     public @interface ProxyState {
     }
+
+    private static final String[] DNS_SERVERS = {
+            "8.8.8.8",
+            "8.8.4.4",
+            "1.1.1.1",
+            "1.0.0.1"
+    };
+
+    private static final String[] IPV6_DNS_SERVERS = {
+            "2001:4860:4860::8888",
+            "2001:4860:4860::8844"
+    };
 
     private static final int VPN_MTU = 1500;
     private static final String PRIVATE_VLAN4_CLIENT = "172.19.0.1";
@@ -92,7 +98,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
     /**
      * Receives stop event.
      */
-    private BroadcastReceiver mStopBroadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mStopBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String stopAction = getString(R.string.stop_service);
@@ -267,66 +273,18 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         startForegroundNotification(getString(R.string.notification_channel_id));
         setState(STARTING);
 
-        Set<String> exemptAppPackageNames = getExemptAppPackageNames();
+        Set<String> packageNames = getExemptAppPackageNames();
+        packageNames.add(getPackageName());
 
-        VpnService.Builder b = new VpnService.Builder();
-        try {
-            b.addDisallowedApplication(getPackageName());
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-            setState(STOPPED);
-            // todo: stop foreground notification and return here?
-        }
-        for (String packageName : exemptAppPackageNames) {
-            try {
-                b.addDisallowedApplication(packageName);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-        enable_clash = intent.getBooleanExtra(CLASH_EXTRA_NAME, true);
-        boolean enable_ipv6 = false;
+        boolean enableIPV6 = app.trojanPreferences.getEnableIPV6();
+        enableClash = app.trojanPreferences.getEnableClash();
 
-        File file = new File(getFilesDir(), "config.json");
-        if (file.exists()) {
-            try {
-                try (FileInputStream fis = new FileInputStream(file)) {
-                    byte[] content = new byte[(int) file.length()];
-                    fis.read(content);
-                    JSONObject json = new JSONObject(new String(content));
-                    enable_ipv6 = json.getBoolean("enable_ipv6");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        b.setSession(getString(R.string.app_name));
-        b.setMtu(VPN_MTU);
-        b.addAddress(PRIVATE_VLAN4_CLIENT, 30);
-        if (enable_clash) {
-            for (String route : getResources().getStringArray(R.array.bypass_private_route)) {
-                String[] parts = route.split("/", 2);
-                b.addRoute(parts[0], Integer.parseInt(parts[1]));
-            }
-            // fake ip range for go-tun2socks
-            // should match clash configuration
-            b.addRoute("198.18.0.0", 16);
-        } else {
-            b.addRoute("0.0.0.0", 0);
-        }
-
-        if (enable_ipv6) {
-            b.addAddress(PRIVATE_VLAN6_CLIENT, 126);
-            b.addRoute("::", 0);
-        }
-        b.addDnsServer("8.8.8.8");
-        b.addDnsServer("8.8.4.4");
-        b.addDnsServer("1.1.1.1");
-        b.addDnsServer("1.0.0.1");
-        if (enable_ipv6) {
-            b.addDnsServer("2001:4860:4860::8888");
-            b.addDnsServer("2001:4860:4860::8844");
-        }
+        VpnService.Builder b = buildService(
+                getString(R.string.app_name),
+                packageNames,
+                enableClash,
+                enableIPV6
+        );
         pfd = b.establish();
         LogHelper.i("VPN", "pfd established");
 
@@ -344,12 +302,12 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         }
         LogHelper.i("Igniter", "trojan port is " + trojanPort);
         Storage storage = IgniterApplication.getApplication().storage;
-        TrojanConfig.update(storage.getTrojanConfigPath(), "local_port", trojanPort);
+        TrojanConfig.update(storage.getTrojanConfigPath(), TrojanConfig.KEY_LOCAL_PORT, trojanPort);
         Storage.print(storage.getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
         JNIHelper.trojan(storage.getTrojanConfigPath());
 
         long clashSocksPort = 1080; // default value in case fail to get free port
-        if (enable_clash) {
+        if (enableClash) {
             try {
 
                 // clash and trojan should NOT listen on the same port
@@ -363,12 +321,11 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
                 app.clashConfig.setPort((int)clashSocksPort);
                 app.clashConfig.setTrojanPort((int)trojanPort);
 
-                app.storage.print(storage.getClashConfigPath(), ClashConfig.TAG);
                 ClashStartOptions clashStartOptions = new ClashStartOptions();
                 clashStartOptions.setHomeDir(getFilesDir().toString());
                 clashStartOptions.setTrojanProxyServer("127.0.0.1:" + trojanPort);
-                    // Clash specific syntax for any address
-                    clashStartOptions.setSocksListener("*:" + clashSocksPort);
+                // Clash specific syntax for any address
+                clashStartOptions.setSocksListener("*:" + clashSocksPort);
                 clashStartOptions.setTrojanProxyServerUdpEnabled(true);
                 Clash.start(clashStartOptions);
                 LogHelper.i("Clash", "clash started");
@@ -385,11 +342,11 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         Tun2socksStartOptions tun2socksStartOptions = new Tun2socksStartOptions();
         tun2socksStartOptions.setTunFd(fd);
         tun2socksStartOptions.setSocks5Server(TUN2SOCKS5_SERVER_HOST + ":" + tun2socksPort);
-        tun2socksStartOptions.setEnableIPv6(enable_ipv6);
+        tun2socksStartOptions.setEnableIPv6(enableIPV6);
         tun2socksStartOptions.setMTU(VPN_MTU);
 
         Tun2socks.setLoglevel("info");
-        if (enable_clash) {
+        if (enableClash) {
             tun2socksStartOptions.setFakeIPRange("198.18.0.1/16");
         } else {
             // Disable go-tun2socks fake ip
@@ -405,7 +362,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
                 .append("Tun2socks port: ")
                 .append(tun2socksPort)
                 .append("\n");
-        if (enable_clash) {
+        if (enableClash) {
             runningStatusStringBuilder.append("Clash SOCKS listen port: ")
                     .append(clashSocksPort)
                     .append("\n");
@@ -437,7 +394,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         LogHelper.i(TAG, "shutdown");
         setState(STOPPING);
         JNIHelper.stop();
-        if (enable_clash) {
+        if (enableClash) {
             Clash.stop();
             LogHelper.i("Clash", "clash stopped");
         }
@@ -470,5 +427,42 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         shutdown();
         // this is essential for gomobile aar
         android.os.Process.killProcess(android.os.Process.myPid());
+    }
+
+    public VpnService.Builder buildService(String sessionName, Set<String> packages, boolean enableClash, boolean enableIPV6) {
+        VpnService.Builder b = new VpnService.Builder();
+        for (String packageName : packages) {
+            try {
+                b.addDisallowedApplication(packageName);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        b.setSession(sessionName);
+        b.setMtu(VPN_MTU);
+        b.addAddress(PRIVATE_VLAN4_CLIENT, 30);
+        if (enableClash) {
+            for (String route : getResources().getStringArray(R.array.bypass_private_route)) {
+                String[] parts = route.split("/", 2);
+                b.addRoute(parts[0], Integer.parseInt(parts[1]));
+            }
+            // fake ip range for go-tun2socks
+            // should match clash configuration
+            b.addRoute("198.18.0.0", 16);
+        } else {
+            b.addRoute("0.0.0.0", 0);
+        }
+        for (String server : DNS_SERVERS) {
+            b.addDnsServer(server);
+        }
+        if (enableIPV6) {
+            b.addAddress(PRIVATE_VLAN6_CLIENT, 126);
+            b.addRoute("::", 0);
+
+            for (String server : IPV6_DNS_SERVERS) {
+                b.addDnsServer(server);
+            }
+        }
+        return b;
     }
 }
