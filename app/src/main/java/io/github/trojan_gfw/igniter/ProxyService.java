@@ -45,8 +45,8 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
     public static final int STOPPED = 3;
     public static final int IGNITER_STATUS_NOTIFY_MSG_ID = 114514;
     public long tun2socksPort;
-    public boolean enable_clash = false;
-
+    public boolean enableClash = false;
+    public boolean enableIPV6 = false;
     public IgniterApplication app;
 
     @IntDef({STATE_NONE, STARTING, STARTED, STOPPING, STOPPED})
@@ -257,8 +257,8 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         Set<String> packageNames = getExemptAppPackageNames();
         packageNames.add(getPackageName());
 
-        boolean enableIPV6 = app.trojanPreferences.getEnableIPV6();
-        boolean enableClash = app.trojanPreferences.getEnableClash();
+        enableIPV6 = app.trojanPreferences.getEnableIPV6();
+        enableClash = app.trojanPreferences.getEnableClash();
 
         VpnService.Builder b = buildService(
                 getString(R.string.app_name),
@@ -288,7 +288,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         JNIHelper.trojan(storage.getTrojanConfigPath());
 
         long clashSocksPort = 1080; // default value in case fail to get free port
-        if (enable_clash) {
+        if (enableClash) {
             try {
 
                 // clash and trojan should NOT listen on the same port
@@ -318,7 +318,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
                 .append("Tun2socks port: ")
                 .append(tun2socksPort)
                 .append("\n");
-        if (enable_clash) {
+        if (enableClash) {
             runningStatusStringBuilder.append("Clash SOCKS listen port: ")
                     .append(clashSocksPort)
                     .append("\n");
@@ -350,7 +350,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         LogHelper.i(TAG, "shutdown");
         setState(STOPPING);
         JNIHelper.stop();
-        if (enable_clash) {
+        if (enableClash) {
             Clash.stop();
             LogHelper.i("Clash", "clash stopped");
         }
