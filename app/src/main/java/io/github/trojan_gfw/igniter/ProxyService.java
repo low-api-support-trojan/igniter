@@ -5,11 +5,9 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.VpnService;
 import android.os.Build;
@@ -17,6 +15,7 @@ import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+
 import androidx.annotation.IntDef;
 import androidx.core.app.NotificationCompat;
 
@@ -24,11 +23,11 @@ import java.util.Collections;
 import java.util.Set;
 
 import clash.Clash;
-import clash.ClashStartOptions;
 import freeport.Freeport;
 import io.github.trojan_gfw.igniter.connection.TestConnection;
 import io.github.trojan_gfw.igniter.exempt.data.ExemptAppDataManager;
 import io.github.trojan_gfw.igniter.exempt.data.ExemptAppDataSource;
+import io.github.trojan_gfw.igniter.persistence.ClashConfig;
 import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanService;
@@ -36,25 +35,6 @@ import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanServiceCallback;
 import tun2socks.Tun2socks;
 import tun2socks.Tun2socksStartOptions;
 
-/**
- * A service that provides proxy connection management, including starting or stopping proxy connection,
- * test connection and state change. You should call {@link #startForegroundService(Intent)} to start
- * this service and send broadcast with action {@link R.string#stop_service} to shutdown the service.
- * It's recommended to start this service by the help
- * of {@link io.github.trojan_gfw.igniter.tile.ProxyHelper}.
- * <br/>
- * If you want to interact withthe service, you should call {@link #bindService(Intent, ServiceConnection, int)}
- * with the action {@link R.string#bind_service}. Then {@link ProxyService} will return a binder
- * which implements {@link ITrojanService} at {@link #onBind(Intent)}.
- * <br/>
- * If you want to listen for state change and test connection result, you have to implement
- * {@link ITrojanServiceCallback} and register it once {@link ServiceConnection#onServiceConnected(ComponentName, IBinder)}
- * is triggered. Don't forget to unregister the callback when binder is died or service disconnected.
- * <br/>
- * Since the interaction is quite complex, it's recommended to interact with {@link ProxyService} by
- * {@link io.github.trojan_gfw.igniter.connection.TrojanConnection}. For further information, see
- * {@link io.github.trojan_gfw.igniter.connection.TrojanConnection}.
- */
 public class ProxyService extends VpnService implements TestConnection.OnResultListener {
     private static final String TAG = "ProxyService";
 
@@ -321,13 +301,16 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
                 app.clashConfig.setPort((int)clashSocksPort);
                 app.clashConfig.setTrojanPort((int)trojanPort);
 
-                ClashStartOptions clashStartOptions = new ClashStartOptions();
-                clashStartOptions.setHomeDir(getFilesDir().toString());
-                clashStartOptions.setTrojanProxyServer("127.0.0.1:" + trojanPort);
-                // Clash specific syntax for any address
-                clashStartOptions.setSocksListener("*:" + clashSocksPort);
-                clashStartOptions.setTrojanProxyServerUdpEnabled(true);
-                Clash.start(clashStartOptions);
+                ClashConfig.startClash(getFilesDir().toString(),
+                        (int)clashSocksPort, (int)trojanPort);
+
+//                ClashStartOptions clashStartOptions = new ClashStartOptions();
+//                clashStartOptions.setHomeDir(getFilesDir().toString());
+//                clashStartOptions.setTrojanProxyServer("127.0.0.1:" + trojanPort);
+//                // Clash specific syntax for any address
+//                clashStartOptions.setSocksListener("*:" + clashSocksPort);
+//                clashStartOptions.setTrojanProxyServerUdpEnabled(true);
+//                Clash.start(clashStartOptions);
                 LogHelper.i("Clash", "clash started");
             } catch (Exception e) {
                 e.printStackTrace();

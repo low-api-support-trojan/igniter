@@ -106,16 +106,12 @@ public class ClashConfig {
         return DEFAULT_TROJAN_PORT;
     }
 
-    public static void startClash(String path, int port, int proxy, boolean local) {
-        String ip = "*";
-        if (local) {
-            ip = "127.0.0.1";
-        }
+    public static void startClash(String path, int port, int proxy) {
         ClashStartOptions clashStartOptions = new ClashStartOptions();
         clashStartOptions.setHomeDir(path);
-        clashStartOptions.setTrojanProxyServer(ip + ":" + proxy);
+        clashStartOptions.setTrojanProxyServer("127.0.0.1:" + proxy);
         // Clash specific syntax for any address
-        clashStartOptions.setSocksListener(ip + ":" + port);
+        clashStartOptions.setSocksListener("*:" + port);
         clashStartOptions.setTrojanProxyServerUdpEnabled(true);
         Clash.start(clashStartOptions);
     }
