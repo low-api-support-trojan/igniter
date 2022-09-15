@@ -1,5 +1,7 @@
 package io.github.trojan_gfw.igniter.persistence;
 
+import android.content.Context;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
@@ -10,6 +12,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
+
+import clash.Clash;
+import clash.ClashStartOptions;
 
 public class ClashConfig {
     public static  String TAG = "ClashConfig";
@@ -93,5 +98,19 @@ public class ClashConfig {
             e.printStackTrace();
         }
         return DEFAULT_TROJAN_PORT;
+    }
+
+    public static void startClash(Context context, int port, int proxy, boolean local) {
+        String ip = "*";
+        if (local) {
+            ip = "127.0.0.1";
+        }
+        ClashStartOptions clashStartOptions = new ClashStartOptions();
+        clashStartOptions.setHomeDir(context.getFilesDir().toString());
+        clashStartOptions.setTrojanProxyServer(ip + ":" + proxy);
+        // Clash specific syntax for any address
+        clashStartOptions.setSocksListener( ip + ":" + port);
+        clashStartOptions.setTrojanProxyServerUdpEnabled(true);
+        Clash.start(clashStartOptions);
     }
 }
