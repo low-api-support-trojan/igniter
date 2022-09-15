@@ -3,16 +3,20 @@ package io.github.trojan_gfw.igniter;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.VpnService;
 import android.os.Bundle;
 import android.os.RemoteException;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,8 +47,6 @@ import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanService;
 import io.github.trojan_gfw.igniter.servers.activity.ServerListActivity;
 import io.github.trojan_gfw.igniter.servers.data.ServerListDataManager;
 import io.github.trojan_gfw.igniter.servers.data.ServerListDataSource;
-import io.github.trojan_gfw.igniter.tile.ProxyHelper;
-
 
 public class MainActivity extends AppCompatActivity implements TrojanConnection.Callback {
     private static final String TAG = "MainActivity";
@@ -314,11 +316,11 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                     if (i != null) {
                         startActivityForResult(i, VPN_REQUEST_CODE);
                     } else {
-                        ProxyHelper.startProxyService(getApplicationContext());
+                        startProxyService(getApplicationContext());
                     }
                 } else if (proxyState == ProxyService.STARTED) {
                     // stop ProxyService
-                    ProxyHelper.stopProxyService(getApplicationContext());
+                    stopProxyService(getApplicationContext());
                 }
             }
         });
@@ -513,7 +515,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                 Snackbar.make(rootViewGroup, R.string.main_restart_proxy_service_tip, Snackbar.LENGTH_LONG).show();
             }
         } else if (VPN_REQUEST_CODE == requestCode && RESULT_OK == resultCode) {
-            ProxyHelper.startProxyService(getApplicationContext());
+            startProxyService(getApplicationContext());
         }
     }
 
@@ -575,5 +577,22 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
     protected void onDestroy() {
         super.onDestroy();
         connection.disconnect(this);
+    }
+
+    public static void startProxyService(Context context) {
+        Intent intent = new Intent(context, ProxyService.class);
+        ContextCompat.startForegroundService(context, intent);
+    }
+
+    public static void stopProxyService(Context context) {
+        Intent intent = new Intent(context.getString(R.string.stop_service));
+        intent.setPackage(context.getPackageName());
+        context.sendBroadcast(intent);
+    }
+
+    public static void startLauncherActivity(Context context) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        context.startActivity(intent);
     }
 }
