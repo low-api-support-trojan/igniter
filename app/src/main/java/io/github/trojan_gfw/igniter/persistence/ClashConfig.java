@@ -100,13 +100,13 @@ public class ClashConfig {
         return DEFAULT_TROJAN_PORT;
     }
 
-    public static void startClash(Context context, int port, int proxy, boolean local) {
+    public static void startClash(String path, int port, int proxy, boolean local) {
         String ip = "*";
         if (local) {
             ip = "127.0.0.1";
         }
         ClashStartOptions clashStartOptions = new ClashStartOptions();
-        clashStartOptions.setHomeDir(context.getFilesDir().toString());
+        clashStartOptions.setHomeDir(path);
         clashStartOptions.setTrojanProxyServer(ip + ":" + proxy);
         // Clash specific syntax for any address
         clashStartOptions.setSocksListener( ip + ":" + port);

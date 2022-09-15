@@ -34,7 +34,6 @@ import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanService;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanServiceCallback;
 import tun2socks.Tun2socks;
-import tun2socks.Tun2socksStartOptions;
 
 public class ProxyService extends VpnService implements TestConnection.OnResultListener {
     private static final String TAG = "ProxyService";
@@ -300,14 +299,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
 
                 LogHelper.i("igniter", "clash port is " + clashSocksPort);
                 app.clashConfig.updatePort((int) clashSocksPort, (int) trojanPort);
-                ClashConfig.startClash(getApplicationContext(), (int)clashSocksPort, (int)trojanPort, false);
-//                ClashStartOptions clashStartOptions = new ClashStartOptions();
-//                clashStartOptions.setHomeDir(getFilesDir().toString());
-//                clashStartOptions.setTrojanProxyServer("127.0.0.1:" + trojanPort);
-//                // Clash specific syntax for any address
-//                clashStartOptions.setSocksListener("*:" + clashSocksPort);
-//                clashStartOptions.setTrojanProxyServerUdpEnabled(true);
-//                Clash.start(clashStartOptions);
+                ClashConfig.startClash(getApplicationContext().getFilesDir().toString(), (int)clashSocksPort, (int)trojanPort, false);
                 LogHelper.i("Clash", "clash started");
             } catch (Exception e) {
                 e.printStackTrace();
@@ -319,23 +311,6 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         LogHelper.i("igniter", "tun2socks port is " + tun2socksPort);
 
         NetWorkConfig.tunnelProxy(fd, (int)tun2socksPort, enableIPV6, enableClash);
-        // debug/info/warn/error/none
-//        Tun2socksStartOptions tun2socksStartOptions = new Tun2socksStartOptions();
-//        tun2socksStartOptions.setTunFd(fd);
-//        tun2socksStartOptions.setSocks5Server(TUN2SOCKS5_SERVER_HOST + ":" + tun2socksPort);
-//        tun2socksStartOptions.setEnableIPv6(enableIPV6);
-//        tun2socksStartOptions.setMTU(VPN_MTU);
-//
-//        Tun2socks.setLoglevel("info");
-//        if (enable_clash) {
-//            tun2socksStartOptions.setFakeIPRange("198.18.0.1/16");
-//        } else {
-//            // Disable go-tun2socks fake ip
-//            tun2socksStartOptions.setFakeIPRange("");
-//        }
-//        Tun2socks.start(tun2socksStartOptions);
-//        LogHelper.i(TAG, tun2socksStartOptions.toString());
-
         StringBuilder runningStatusStringBuilder = new StringBuilder();
         runningStatusStringBuilder.append("Trojan SOCKS5 port: ")
                 .append(trojanPort)
