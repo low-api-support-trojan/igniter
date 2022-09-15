@@ -4,12 +4,12 @@ import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 import android.os.Process;
-import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
 import java.util.List;
 
+import io.github.trojan_gfw.igniter.persistence.ClashConfig;
 import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.persistence.TrojanPreferences;
@@ -27,6 +27,7 @@ public class IgniterApplication extends Application {
 
     // Sharable Singletons
     public Storage storage;
+    public ClashConfig clashConfig;
     public TrojanConfig trojanConfig;
     public TrojanPreferences trojanPreferences;
 
@@ -35,6 +36,9 @@ public class IgniterApplication extends Application {
         super.onCreate();
         instance = this;
         storage = new Storage(this);
+
+        clashConfig = new ClashConfig(storage.getClashConfigPath());
+
         TrojanConfig.init(storage);
         trojanConfig = TrojanConfig.getInstance();
         trojanPreferences = new TrojanPreferences(this);
