@@ -298,8 +298,12 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
                 while (clashSocksPort == trojanPort);
 
                 LogHelper.i("igniter", "clash port is " + clashSocksPort);
-                app.clashConfig.updatePort((int) clashSocksPort, (int) trojanPort);
-                ClashConfig.startClash(getApplicationContext().getFilesDir().toString(), (int)clashSocksPort, (int)trojanPort, false);
+
+                app.clashConfig.setPort((int)clashSocksPort);
+                app.clashConfig.setTrojanPort((int)trojanPort);
+
+                ClashConfig.startClash(getFilesDir().toString(),
+                        (int)clashSocksPort, (int)trojanPort);
                 LogHelper.i("Clash", "clash started");
             } catch (Exception e) {
                 e.printStackTrace();

@@ -1,11 +1,8 @@
 package io.github.trojan_gfw.igniter.persistence;
 
-import android.content.Context;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,7 +14,7 @@ import clash.Clash;
 import clash.ClashStartOptions;
 
 public class ClashConfig {
-    public static  String TAG = "ClashConfig";
+    public static String TAG = "ClashConfig";
     // KEYS
     private static String KEY_SOCKS_PORT = "socks-port";
     private static String KEY_PROXIES = "proxies";
@@ -48,33 +45,48 @@ public class ClashConfig {
     }
 
     public <T> void update(String key, T value) {
-        update(this.data, key, value);
+        update(data, key, value);
     }
 
     public <T> void update(Map<String, Object> data, String key, T value) {
         data.put(key, value);
     }
 
-    public void save() throws FileNotFoundException {
+    public void save(String filename) throws IOException {
+        File file = new File(filename);
+        if (!file.exists()) {
+            file.createNewFile();
+        }
         PrintWriter writer = new PrintWriter(filename);
         yaml.dump(data, writer);
         writer.close();
     }
 
-    public void updatePort(int port, int proxyPort) {
-        data.put(KEY_SOCKS_PORT, port);
+    public void setPort(int port) {
+        try {
+            data.put(KEY_SOCKS_PORT, port);
+            save(filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setTrojanPort(int port) {
         List<Map<String, Object>> proxies = (List<Map<String, Object>>) data.get(KEY_PROXIES);
         try {
             for (int i = 0; i < proxies.size(); i++) {
                 Map<String, Object> map = proxies.get(i);
                 if (map.get(KEY_NAME).equals(KEY_TROJAN_NAME)) {
-                    map.put(KEY_PORT, proxyPort);
+                    map.put(KEY_PORT, port);
                     proxies.set(i, map);
+                    break;
                 }
             }
             data.put(KEY_PROXIES, proxies);
-            save();
+            save(filename);
         } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -84,32 +96,22 @@ public class ClashConfig {
     }
 
     public int getTrojanPort() {
-        List<String> proxies = (List<String>) data.get(KEY_PROXIES);
-        try {
-            for (int i = 0; i < proxies.toArray().length; i++) {
-                String jsonStr = proxies.get(i);
-                JSONObject json = new JSONObject(jsonStr);
-                String name = json.getString(KEY_NAME);
-                if (name.equals(KEY_TROJAN_NAME)) {
-                    return json.getInt(KEY_PORT);
-                }
+        List<Map<String, Object>> proxies = (List<Map<String, Object>>) data.get(KEY_PROXIES);
+        for (int i = 0; i < proxies.size(); i++) {
+            Map<String, Object> map = proxies.get(i);
+            if (map.get(KEY_NAME).equals(KEY_TROJAN_NAME)) {
+                return (int) map.get(KEY_PORT);
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
         return DEFAULT_TROJAN_PORT;
     }
 
-    public static void startClash(String path, int port, int proxy, boolean local) {
-        String ip = "*";
-        if (local) {
-            ip = "127.0.0.1";
-        }
+    public static void startClash(String path, int port, int proxy) {
         ClashStartOptions clashStartOptions = new ClashStartOptions();
         clashStartOptions.setHomeDir(path);
-        clashStartOptions.setTrojanProxyServer(ip + ":" + proxy);
+        clashStartOptions.setTrojanProxyServer("127.0.0.1:" + proxy);
         // Clash specific syntax for any address
-        clashStartOptions.setSocksListener( ip + ":" + port);
+        clashStartOptions.setSocksListener("*:" + port);
         clashStartOptions.setTrojanProxyServerUdpEnabled(true);
         Clash.start(clashStartOptions);
     }
