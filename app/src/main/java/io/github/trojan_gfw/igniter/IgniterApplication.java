@@ -29,6 +29,7 @@ public class IgniterApplication extends Application {
         super.onCreate();
         instance = this;
         storage = new Storage(this);
+        storage.init();
 
         clashConfig = new ClashConfig(storage.getClashConfigPath());
 

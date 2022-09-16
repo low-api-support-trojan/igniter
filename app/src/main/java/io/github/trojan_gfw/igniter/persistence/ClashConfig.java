@@ -27,7 +27,7 @@ public class ClashConfig {
 
     private String filename;
     private FileInputStream fileInputStream;
-    Map<String, Object> data;
+    public Map<String, Object> data;
     Yaml yaml;
 
     public ClashConfig(String filename) {

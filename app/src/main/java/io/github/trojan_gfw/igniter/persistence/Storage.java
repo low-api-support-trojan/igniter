@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 import io.github.trojan_gfw.igniter.IgniterApplication;
 import io.github.trojan_gfw.igniter.LogHelper;
@@ -34,7 +35,6 @@ public class Storage {
         dirs[FILES] = context.getFilesDir();
         dirs[EXTERNAL] = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
         dirs[EXTERNAL] = new File(dirs[EXTERNAL], context.getString(R.string.app_name));
-        init();
     }
 
     public String getPath(int type, String filename) {
@@ -119,7 +119,7 @@ public class Storage {
     }
 
     public void init() {
-        String[] pathes = {
+        String[] paths = {
                 getCaCertPath(),
                 getCountryMmdbPath(),
                 getClashConfigPath()
@@ -131,31 +131,46 @@ public class Storage {
         };
 
         for (int i = 0; i < ids.length; i++) {
-            File file = new File(pathes[i]);
-            if (file.exists()) {
-                continue;
-            }
+            File file = new File(paths[i]);
             try {
-                file.createNewFile();
-                InputStream is = context.getResources().openRawResource(ids[i]);
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                String output = "";
-                String strLine;
-                while ((strLine = br.readLine()) != null) {
-                    output += strLine + "\n";
+                if (file.exists()) {
+                    if (!read(paths[i]).equals("")) {
+                        continue;
+                    }
+                } else {
+                    file.createNewFile();
                 }
-                FileOutputStream fos = new FileOutputStream(file);
-                byte[] buf = new byte[1024];
-                int len;
-                while ((len = is.read(buf)) > 0) {
-                    fos.write(buf, 0, len);
-                }
-                br.close();
-                is.close();
-                fos.close();
+                String output = readRawText(ids[i]);
+                write(paths[i], output.getBytes(StandardCharsets.UTF_8));
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public String readRawText(int id) throws IOException {
+        InputStream is = context.getResources().openRawResource(id);
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        String output = "";
+        String strLine;
+        while ((strLine = br.readLine()) != null) {
+            output += strLine + "\n";
+        }
+        br.close();
+        is.close();
+        return output;
+    }
+
+    public void reset() {
+        String[] paths = {
+                getCaCertPath(),
+                getCountryMmdbPath(),
+                getClashConfigPath()
+        };
+
+        for(String filename: paths) {
+            File file = new File(filename);
+            file.delete();
         }
     }
 }

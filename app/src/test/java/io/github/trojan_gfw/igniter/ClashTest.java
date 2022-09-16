@@ -1,16 +1,11 @@
 package io.github.trojan_gfw.igniter;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.Console;
+import org.junit.Test;
+
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 
 import io.github.trojan_gfw.igniter.persistence.ClashConfig;
