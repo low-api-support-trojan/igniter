@@ -5,7 +5,10 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import freeport.Freeport;
+import io.github.trojan_gfw.igniter.IgniterApplication;
+import io.github.trojan_gfw.igniter.JNIHelper;
 import io.github.trojan_gfw.igniter.LogHelper;
+import io.github.trojan_gfw.igniter.R;
 import tun2socks.Tun2socks;
 import tun2socks.Tun2socksStartOptions;
 
@@ -49,5 +52,27 @@ public class NetWorkConfig {
             tun2socksStartOptions.setFakeIPRange("");
         }
         Tun2socks.start(tun2socksStartOptions);
+    }
+
+    public static String startService(IgniterApplication app, int fd) {
+        JNIHelper.trojan(app.storage.getTrojanConfigPath());
+        long trojanPort = app.clashConfig.getTrojanPort();
+        long clashSocksPort = app.clashConfig.getPort();
+        boolean enableClash = app.trojanPreferences.enableClash;
+        boolean enableIPV6 = app.trojanPreferences.enableIPV6;
+        long tun2socksPort;
+        if (enableClash) {
+            ClashConfig.startClash(app.getFilesDir().toString(),
+                    (int)clashSocksPort, (int)trojanPort);
+            tun2socksPort = clashSocksPort;
+        } else {
+            tun2socksPort = trojanPort;
+        }
+        tunnelProxy(fd, (int)tun2socksPort, enableIPV6, enableClash);
+        String str = String.format(app.getString(R.string.network_ports), trojanPort, tun2socksPort);
+        if (enableClash) {
+            str += String.format(app.getString(R.string.clash_port), clashSocksPort);
+        }
+        return str;
     }
 }

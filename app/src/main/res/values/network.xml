@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="network_ports">Trojan socks5 proxy port: %d.
+Tunneling port: %d.</string>
+    <string name="clash_port">Clash port: %d.</string>
+
+</resources>

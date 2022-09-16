@@ -249,7 +249,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         LogHelper.i(TAG, "onStartCommand");
         // In order to keep the service long-lived, starting the service by Context.startForegroundService()
         // might be the easiest way. According to the official indication, a service which is started
-        // by Context.startForegroundService() must call Service.startForeground() within 5 seconds.
+        // by C     ontext.startForegroundService() must call Service.startForeground() within 5 seconds.
         // Otherwise the process will be shutdown and user will get an ANR notification.
         startForegroundNotification(getString(R.string.notification_channel_id));
         setState(STARTING);
@@ -272,54 +272,12 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
             stop();
             return START_NOT_STICKY;
         }
-        int fd = pfd.detachFd();
-        long trojanPort = app.clashConfig.getTrojanPort();
-        LogHelper.i("Igniter", "trojan port is " + trojanPort);
-        Storage storage = app.storage;
-        TrojanConfig.update(storage.getTrojanConfigPath(), TrojanConfig.KEY_LOCAL_PORT, trojanPort);
-        Storage.print(storage.getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
-        JNIHelper.trojan(storage.getTrojanConfigPath());
-
-        long clashSocksPort = app.clashConfig.getPort(); // default value in case fail to get free port
-        if (enableClash) {
-            try {
-                LogHelper.i("igniter", "clash port is " + clashSocksPort);
-
-                app.clashConfig.setPort((int)clashSocksPort);
-                app.clashConfig.setTrojanPort((int)trojanPort);
-
-                ClashConfig.startClash(getFilesDir().toString(),
-                        (int)clashSocksPort, (int)trojanPort);
-                LogHelper.i("Clash", "clash started");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            tun2socksPort = clashSocksPort;
-        } else {
-            tun2socksPort = trojanPort;
-        }
-        LogHelper.i("igniter", "tun2socks port is " + tun2socksPort);
-
-        NetWorkConfig.tunnelProxy(fd, (int)tun2socksPort, enableIPV6, enableClash);
-        StringBuilder runningStatusStringBuilder = new StringBuilder();
-        runningStatusStringBuilder.append("Trojan SOCKS5 port: ")
-                .append(trojanPort)
-                .append("\n")
-                .append("Tun2socks port: ")
-                .append(tun2socksPort)
-                .append("\n");
-        if (enableClash) {
-            runningStatusStringBuilder.append("Clash SOCKS listen port: ")
-                    .append(clashSocksPort)
-                    .append("\n");
-        }
-
+        String igniterRunningStatusStr = NetWorkConfig.startService(app, pfd.detachFd());
         setState(STARTED);
 
         Intent openMainActivityIntent = new Intent(this, MainActivity.class);
         openMainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingOpenMainActivityIntent = PendingIntent.getActivity(this, 0, openMainActivityIntent, 0);
-        String igniterRunningStatusStr = runningStatusStringBuilder.toString();
         final String channelId = getString(R.string.notification_channel_id);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
