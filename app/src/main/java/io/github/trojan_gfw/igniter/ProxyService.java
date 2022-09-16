@@ -45,31 +45,12 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
     public static final int STOPPED = 3;
     public static final int IGNITER_STATUS_NOTIFY_MSG_ID = 114514;
     public long tun2socksPort;
-    public boolean enableClash = false;
-    public boolean enableIPV6 = false;
     public IgniterApplication app;
 
     @IntDef({STATE_NONE, STARTING, STARTED, STOPPING, STOPPED})
     public @interface ProxyState {
     }
 
-    private static final String[] DNS_SERVERS = {
-            "8.8.8.8",
-            "8.8.4.4",
-            "1.1.1.1",
-            "1.0.0.1"
-    };
-
-    private static final String[] IPV6_DNS_SERVERS = {
-            "2001:4860:4860::8888",
-            "2001:4860:4860::8844"
-    };
-
-    private static final int VPN_MTU = 1500;
-    private static final String PRIVATE_VLAN4_CLIENT = "172.19.0.1";
-    //private static final String PRIVATE_VLAN4_ROUTER = "172.19.0.2";
-    private static final String PRIVATE_VLAN6_CLIENT = "fdfe:dcba:9876::1";
-    //private static final String PRIVATE_VLAN6_ROUTER = "fdfe:dcba:9876::2";
     private static final String TUN2SOCKS5_SERVER_HOST = "127.0.0.1";
     private @ProxyState
     int state = STATE_NONE;
@@ -257,22 +238,19 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         Set<String> packageNames = getExemptAppPackageNames();
         packageNames.add(getPackageName());
 
-        enableIPV6 = app.trojanPreferences.getEnableIPV6();
-        enableClash = app.trojanPreferences.getEnableClash();
-
-        VpnService.Builder b = buildService(
+        VpnService.Builder b = new VpnService.Builder();
+        pfd = NetWorkConfig.establish(
+                app,
+                b,
                 getString(R.string.app_name),
-                packageNames,
-                enableClash,
-                enableIPV6
+                packageNames
         );
-        pfd = b.establish();
         LogHelper.i("VPN", "pfd established");
         if (pfd == null) {
             stop();
             return START_NOT_STICKY;
         }
-        String igniterRunningStatusStr = NetWorkConfig.startService(app, pfd.detachFd());
+        String statusStr = NetWorkConfig.startService(app, pfd.detachFd());
         setState(STARTED);
 
         Intent openMainActivityIntent = new Intent(this, MainActivity.class);
@@ -282,9 +260,9 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle("Igniter is running")
-                .setContentText(igniterRunningStatusStr)
+                .setContentText(statusStr)
                 .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText(igniterRunningStatusStr))
+                        .bigText(statusStr))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 // Set the intent that will fire when the user taps the notification
                 .setContentIntent(pendingOpenMainActivityIntent)
@@ -297,13 +275,8 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
     private void shutdown() {
         LogHelper.i(TAG, "shutdown");
         setState(STOPPING);
-        JNIHelper.stop();
-        if (enableClash) {
-            Clash.stop();
-            LogHelper.i("Clash", "clash stopped");
-        }
-        Tun2socks.stop();
 
+        NetWorkConfig.stop(app);
         stopSelf();
 
         setState(STOPPED);
@@ -331,42 +304,5 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         shutdown();
         // this is essential for gomobile aar
         android.os.Process.killProcess(android.os.Process.myPid());
-    }
-
-    public VpnService.Builder buildService(String sessionName, Set<String> packages, boolean enableClash, boolean enableIPV6) {
-        VpnService.Builder b = new VpnService.Builder();
-        for (String packageName : packages) {
-            try {
-                b.addDisallowedApplication(packageName);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-        b.setSession(sessionName);
-        b.setMtu(VPN_MTU);
-        b.addAddress(PRIVATE_VLAN4_CLIENT, 30);
-        if (enableClash) {
-            for (String route : getResources().getStringArray(R.array.bypass_private_route)) {
-                String[] parts = route.split("/", 2);
-                b.addRoute(parts[0], Integer.parseInt(parts[1]));
-            }
-            // fake ip range for go-tun2socks
-            // should match clash configuration
-            b.addRoute("198.18.0.0", 16);
-        } else {
-            b.addRoute("0.0.0.0", 0);
-        }
-        for (String server : DNS_SERVERS) {
-            b.addDnsServer(server);
-        }
-        if (enableIPV6) {
-            b.addAddress(PRIVATE_VLAN6_CLIENT, 126);
-            b.addRoute("::", 0);
-
-            for (String server : IPV6_DNS_SERVERS) {
-                b.addDnsServer(server);
-            }
-        }
-        return b;
     }
 }
