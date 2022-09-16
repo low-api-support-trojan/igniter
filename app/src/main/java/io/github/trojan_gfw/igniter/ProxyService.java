@@ -268,35 +268,21 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         );
         pfd = b.establish();
         LogHelper.i("VPN", "pfd established");
-
         if (pfd == null) {
             stop();
             return START_NOT_STICKY;
         }
         int fd = pfd.detachFd();
-        long trojanPort;
-        try {
-            trojanPort = Freeport.getFreePort();
-        } catch (Exception e) {
-            e.printStackTrace();
-            trojanPort = 1081;
-        }
+        long trojanPort = app.clashConfig.getTrojanPort();
         LogHelper.i("Igniter", "trojan port is " + trojanPort);
         Storage storage = app.storage;
         TrojanConfig.update(storage.getTrojanConfigPath(), TrojanConfig.KEY_LOCAL_PORT, trojanPort);
         Storage.print(storage.getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
         JNIHelper.trojan(storage.getTrojanConfigPath());
 
-        long clashSocksPort = 1080; // default value in case fail to get free port
+        long clashSocksPort = app.clashConfig.getPort(); // default value in case fail to get free port
         if (enableClash) {
             try {
-
-                // clash and trojan should NOT listen on the same port
-                do {
-                    clashSocksPort = Freeport.getFreePort();
-                }
-                while (clashSocksPort == trojanPort);
-
                 LogHelper.i("igniter", "clash port is " + clashSocksPort);
 
                 app.clashConfig.setPort((int)clashSocksPort);
