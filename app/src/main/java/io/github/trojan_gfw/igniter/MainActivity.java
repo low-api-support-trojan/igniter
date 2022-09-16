@@ -118,23 +118,23 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         }
     };
 
-    private void copyRawResourceToDir(int resId, String destPathName, boolean override) {
-        File file = new File(destPathName);
-        if (override || !file.exists()) {
-            try {
-                try (InputStream is = getResources().openRawResource(resId);
-                     FileOutputStream fos = new FileOutputStream(file)) {
-                    byte[] buf = new byte[1024];
-                    int len;
-                    while ((len = is.read(buf)) > 0) {
-                        fos.write(buf, 0, len);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    private void copyRawResourceToDir(int resId, String destPathName, boolean override) {
+//        File file = new File(destPathName);
+//        if (override || !file.exists()) {
+//            try {
+//                try (InputStream is = getResources().openRawResource(resId);
+//                     FileOutputStream fos = new FileOutputStream(file)) {
+//                    byte[] buf = new byte[1024];
+//                    int len;
+//                    while ((len = is.read(buf)) > 0) {
+//                        fos.write(buf, 0, len);
+//                    }
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     private void updateViews(int state) {
         proxyState = state;
@@ -195,9 +195,9 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         clashLink.setMovementMethod(LinkMovementMethod.getInstance());
         startStopButton = findViewById(R.id.startStopButton);
 
-        copyRawResourceToDir(R.raw.cacert, app.storage.getCaCertPath(), true);
-        copyRawResourceToDir(R.raw.country, app.storage.getCountryMmdbPath(), true);
-        copyRawResourceToDir(R.raw.clash_config, app.storage.getClashConfigPath(), false);
+//        copyRawResourceToDir(R.raw.cacert, app.storage.getCaCertPath(), true);
+//        copyRawResourceToDir(R.raw.country, app.storage.getCountryMmdbPath(), true);
+//        copyRawResourceToDir(R.raw.clash_config, app.storage.getClashConfigPath(), false);
 
         remoteAddrText.addTextChangedListener(remoteAddrTextListener);
 

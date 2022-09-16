@@ -7,10 +7,16 @@ import android.os.Environment;
 
 import androidx.core.content.ContextCompat;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 
+import io.github.trojan_gfw.igniter.IgniterApplication;
 import io.github.trojan_gfw.igniter.LogHelper;
 import io.github.trojan_gfw.igniter.R;
 
@@ -28,6 +34,7 @@ public class Storage {
         dirs[FILES] = context.getFilesDir();
         dirs[EXTERNAL] = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
         dirs[EXTERNAL] = new File(dirs[EXTERNAL], context.getString(R.string.app_name));
+        init();
     }
 
     public String getPath(int type, String filename) {
@@ -55,11 +62,11 @@ public class Storage {
             int readBytes = fis.read(content);
             assert readBytes == length;
             String result = new String(content);
-            return  result;
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return  null;
+        return null;
     }
 
     public static void write(String filename, byte[] bytes) {
@@ -109,5 +116,46 @@ public class Storage {
             }
         }
         return true;
+    }
+
+    public void init() {
+        String[] pathes = {
+                getCaCertPath(),
+                getCountryMmdbPath(),
+                getClashConfigPath()
+        };
+        int[] ids = {
+                R.raw.cacert,
+                R.raw.country,
+                R.raw.clash_config
+        };
+
+        for (int i = 0; i < ids.length; i++) {
+            File file = new File(pathes[i]);
+            if (file.exists()) {
+                continue;
+            }
+            try {
+                file.createNewFile();
+                InputStream is = context.getResources().openRawResource(ids[i]);
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                String output = "";
+                String strLine;
+                while ((strLine = br.readLine()) != null) {
+                    output += strLine + "\n";
+                }
+                FileOutputStream fos = new FileOutputStream(file);
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = is.read(buf)) > 0) {
+                    fos.write(buf, 0, len);
+                }
+                br.close();
+                is.close();
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
