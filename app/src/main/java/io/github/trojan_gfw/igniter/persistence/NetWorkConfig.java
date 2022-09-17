@@ -88,7 +88,7 @@ public class NetWorkConfig {
         tunnelProxy(fd, (int)tun2socksPort, enableIPV6, enableClash);
         String str = String.format(app.getString(R.string.network_ports), trojanPort, tun2socksPort);
         if (enableClash) {
-            str += "\n" + String.format(app.getString(R.string.clash_port), clashSocksPort);
+            str += String.format(app.getString(R.string.clash_port), clashSocksPort);
         }
         return str;
     }
