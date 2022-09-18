@@ -13,7 +13,7 @@ public class TrojanPreferences {
     public static final String KEY_ENABLE_IPV6 = "enable_ipv6";
 
     // Multi Process shared keys
-    public static final String KEY_EVER_STARTED = "first_start";
+    public static final String KEY_EVER_STARTED = "ever_started";
     public static final String KEY_ENABLE_CLASH = "enable_clash";
 
     boolean enableIPV6 = false;
