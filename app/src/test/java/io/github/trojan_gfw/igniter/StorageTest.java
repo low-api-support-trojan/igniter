@@ -1,6 +1,7 @@
 package io.github.trojan_gfw.igniter;
 
-import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
 
 import android.content.Context;
 
@@ -11,7 +12,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.io.IOException;
 
 import io.github.trojan_gfw.igniter.persistence.Storage;
 
@@ -24,7 +24,7 @@ public class StorageTest {
         instrumentationContext =  androidx.test.core.app.ApplicationProvider.getApplicationContext();
     }
     @Test
-    public void shouldInit() throws IOException {
+    public void shouldInit() {
 
         Storage storage = new Storage(instrumentationContext);
         storage.reset();
@@ -42,14 +42,14 @@ public class StorageTest {
         };
 
         for(String filename: paths) {
-            assertTrue(!new File(filename).exists());
+            assertFalse(new File(filename).exists());
         }
-        storage.init();
+        storage.reset();
         for(int i = 0; i < paths.length; i++) {
             String filename = paths[i];
             String rawString = storage.readRawText(ids[i]);
             String content = Storage.read(filename);
-            assertTrue(content.equals(rawString));
+            assertEquals(content, rawString);
         }
     }
 }

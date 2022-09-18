@@ -143,4 +143,14 @@ public class NetWorkConfig {
         }
         Tun2socks.stop();
     }
+
+    public static void setPort(IgniterApplication app, int port) {
+        if (app.trojanPreferences.getEnableClash()) {
+            app.clashConfig.setPort(port);
+            app.clashConfig.setTrojanPort(port + 1);
+            app.trojanConfig.setLocalPort(port + 1);
+        } else {
+            app.trojanConfig.setLocalPort(port);
+        }
+    }
 }

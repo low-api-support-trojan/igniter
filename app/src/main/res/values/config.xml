@@ -6,4 +6,8 @@
     <string name="trojan_list_config">config_list.json</string>
     <string name="exempted_app_list_config">config_list.json</string>
     <string name="ca_cert_config">cacert.pem</string>
+    <string name="key_local_address">local_addr</string>
+    <string name="key_remote_address">remote_addr</string>
+    <string name="key_local_port">local_port</string>
+    <string name="key_remote_port">remote_port</string>
 </resources>

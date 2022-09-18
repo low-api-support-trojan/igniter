@@ -1,34 +1,27 @@
 package io.github.trojan_gfw.igniter.persistence;
 
-import android.content.Context;
-import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import android.text.TextUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.github.trojan_gfw.igniter.IgniterApplication;
-import io.github.trojan_gfw.igniter.LogHelper;
 import io.github.trojan_gfw.igniter.R;
 
 public class TrojanConfig implements Parcelable {
@@ -71,8 +64,6 @@ public class TrojanConfig implements Parcelable {
     private String tls13CipherList;
 
     private JSONObject json;
-
-    private JSONArray servers;
 
     // Global Config
     public static void init(Storage storage) {
@@ -190,51 +181,34 @@ public class TrojanConfig implements Parcelable {
         return this;
     }
 
-    public TrojanConfig fromJSONString(String jsonString) throws JSONException {
-        JSONObject jsonObject = new JSONObject(jsonString);
-        return this.fromJSON(jsonObject);
-    }
-
     public boolean isValidRunningConfig() {
         return !TextUtils.isEmpty(this.caCertPath)
                 && !TextUtils.isEmpty(this.remoteAddr)
                 && !TextUtils.isEmpty(this.password);
     }
 
-    public String getLocalAddr() {
-        return localAddr;
-    }
-
-    public TrojanConfig setLocalAddr(String localAddr) {
-        this.localAddr = localAddr;
-        return this;
-    }
-
     public int getLocalPort() {
         return localPort;
     }
 
-    public TrojanConfig setLocalPort(int localPort) {
+    public void setLocalPort(int localPort) {
         this.localPort = localPort;
-        return this;
     }
 
     public String getRemoteAddr() {
         return remoteAddr;
     }
 
-    public TrojanConfig setRemoteAddr(String remoteAddr) {
+    public void setRemoteAddr(String remoteAddr) {
         this.remoteAddr = remoteAddr;
-        return this;
     }
 
     public int getRemotePort() {
         return remotePort;
     }
 
-    public TrojanConfig setRemotePort(int remotePort) {
+    public void setRemotePort(int remotePort) {
         this.remotePort = remotePort;
-        return this;
     }
 
     public String getPassword() {
@@ -250,36 +224,13 @@ public class TrojanConfig implements Parcelable {
         return verifyCert;
     }
 
-    public TrojanConfig setVerifyCert(boolean verifyCert) {
+    public void setVerifyCert(boolean verifyCert) {
         this.verifyCert = verifyCert;
-        return this;
     }
 
-    public String getCaCertPath() {
-        return caCertPath;
-    }
 
-    public TrojanConfig setCaCertPath(String caCertPath) {
+    public void setCaCertPath(String caCertPath) {
         this.caCertPath = caCertPath;
-        return this;
-    }
-
-    public String getCipherList() {
-        return cipherList;
-    }
-
-    public TrojanConfig setCipherList(String cipherList) {
-        this.cipherList = cipherList;
-        return this;
-    }
-
-    public String getTls13CipherList() {
-        return tls13CipherList;
-    }
-
-    public TrojanConfig setTls13CipherList(String tls13CipherList) {
-        this.tls13CipherList = tls13CipherList;
-        return this;
     }
 
     @Override
@@ -305,7 +256,6 @@ public class TrojanConfig implements Parcelable {
         return a.equals(b);
     }
 
-    @Nullable
     public static TrojanConfig read(String filename) {
 
         JSONObject json = Storage.readJSON(filename);
@@ -347,7 +297,7 @@ public class TrojanConfig implements Parcelable {
     }
 
 
-    public static boolean writeList(List<TrojanConfig> configList, String filename) {
+    public static void writeList(List<TrojanConfig> configList, String filename) {
         try {
             JSONArray jsonArray = new JSONArray();
             for (TrojanConfig config : configList) {
@@ -364,9 +314,7 @@ public class TrojanConfig implements Parcelable {
             fos.flush();
         } catch (IOException | JSONException e) {
             e.printStackTrace();
-            return false;
         }
-        return true;
     }
 
     @NonNull

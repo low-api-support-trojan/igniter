@@ -9,7 +9,9 @@
 
     <string name="remote_addr">Remote Address</string>
     <string name="remote_port">Remote Port</string>
+    <string name="local_or_clash_port">Local/Clash Port</string>
     <string name="default_port">443</string>
+    <string name="default_local_or_clash_port">1080</string>
     <string name="password">Password</string>
     <string name="trojan_url">Trojan URL</string>
     <string name="button_service__start">Start</string>
