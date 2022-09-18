@@ -14,6 +14,7 @@ import java.util.Map;
 
 import clash.Clash;
 import clash.ClashStartOptions;
+import io.github.trojan_gfw.igniter.IgniterApplication;
 
 public class ClashConfig {
     public static String TAG = "ClashConfig";
@@ -109,12 +110,15 @@ public class ClashConfig {
         return DEFAULT_TROJAN_PORT;
     }
 
-    public static void startClash(String path, int port, int proxy) {
+    public void startClash(String path, int port, int proxy, boolean enableLan) {
         ClashStartOptions clashStartOptions = new ClashStartOptions();
         clashStartOptions.setHomeDir(path);
         clashStartOptions.setTrojanProxyServer("127.0.0.1:" + proxy);
-        // Clash specific syntax for any address
-        clashStartOptions.setSocksListener("*:" + port);
+        if (enableLan) {
+            clashStartOptions.setSocksListener("*:" + port);
+        } else {
+            clashStartOptions.setSocksListener("127.0.0.1:" + port);
+        }
         clashStartOptions.setTrojanProxyServerUdpEnabled(true);
         Clash.start(clashStartOptions);
     }

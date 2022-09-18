@@ -7,7 +7,6 @@ public class TrojanPreferences {
 
     // Preferences Names
     public static final String TROJAN_PREFERENCE_NAME = "TROJAN_PREFERENCE";
-    public static final String TROJAN_MULTI_PROCESS_PREFERENCE_NAME = "TROJAN_MULTTI_PROCESS_PREFERENCE";
 
     // Private keys
     public static final String KEY_ENABLE_IPV6 = "enable_ipv6";
@@ -15,21 +14,23 @@ public class TrojanPreferences {
     // Multi Process shared keys
     public static final String KEY_EVER_STARTED = "ever_started";
     public static final String KEY_ENABLE_CLASH = "enable_clash";
+    public static final String KEY_ENABLE_LAN = "enable_lan";
 
     boolean enableIPV6 = false;
     boolean enableClash = false;
     boolean everStarted = false;
+    boolean enableLan = false;
+
     Context context;
     SharedPreferences sharedPreferences;
-    SharedPreferences multiProcessSharedPreferences;
 
     public TrojanPreferences(Context context) {
         this.context = context;
         sharedPreferences = context.getSharedPreferences(TROJAN_PREFERENCE_NAME, Context.MODE_PRIVATE);
-        multiProcessSharedPreferences = context.getSharedPreferences(TROJAN_MULTI_PROCESS_PREFERENCE_NAME, Context.MODE_MULTI_PROCESS);
         enableIPV6 = sharedPreferences.getBoolean(KEY_ENABLE_IPV6, false);
-        everStarted = multiProcessSharedPreferences.getBoolean(KEY_EVER_STARTED, false);
-        enableClash = multiProcessSharedPreferences.getBoolean(KEY_ENABLE_CLASH, false);
+        everStarted = sharedPreferences.getBoolean(KEY_EVER_STARTED, false);
+        enableClash = sharedPreferences.getBoolean(KEY_ENABLE_CLASH, false);
+        enableLan = sharedPreferences.getBoolean(KEY_ENABLE_LAN, false);
     }
 
     public void setEnableIPV6(boolean enableIPV6) {
@@ -44,19 +45,19 @@ public class TrojanPreferences {
     }
 
     private void setString(String key, String value) {
-        multiProcessSharedPreferences.edit().putString(key, value).commit();
+        sharedPreferences.edit().putString(key, value).commit();
     }
 
     private String getString(String key, String value) {
-        return multiProcessSharedPreferences.getString(key, value);
+        return sharedPreferences.getString(key, value);
     }
 
     private void setBoolean(String key, boolean value) {
-        multiProcessSharedPreferences.edit().putBoolean(key, value).commit();
+        sharedPreferences.edit().putBoolean(key, value).commit();
     }
 
     private boolean getBoolean(String key, boolean fallback) {
-        return multiProcessSharedPreferences.getBoolean(key, fallback);
+        return sharedPreferences.getBoolean(key, fallback);
     }
 
     public boolean isEverStarted() {
@@ -74,5 +75,14 @@ public class TrojanPreferences {
     public void setEnableClash(boolean enableClash) {
         this.enableClash = enableClash;
         setBoolean(KEY_ENABLE_CLASH, enableClash);
+    }
+
+    public boolean isEnableLan() {
+        return enableLan;
+    }
+
+    public void setEnableLan(boolean enableLan) {
+        this.enableLan = enableLan;
+        setBoolean(KEY_ENABLE_LAN, enableLan);
     }
 }

@@ -76,13 +76,15 @@ public class NetWorkConfig {
 
         boolean enableClash = app.trojanPreferences.enableClash;
         boolean enableIPV6 = app.trojanPreferences.enableIPV6;
+        boolean enableLan= app.trojanPreferences.enableLan;
         long trojanPort = app.trojanConfig.getLocalPort();
         long clashSocksPort = 0;
         long tun2socksPort;
         if (enableClash) {
             clashSocksPort = app.clashConfig.getPort();
             ClashConfig.startClash(app.getFilesDir().toString(),
-                    (int)clashSocksPort, (int)trojanPort);
+                    (int)clashSocksPort, (int)trojanPort,
+                    enableLan);
             tun2socksPort = clashSocksPort;
         } else {
             tun2socksPort = trojanPort;

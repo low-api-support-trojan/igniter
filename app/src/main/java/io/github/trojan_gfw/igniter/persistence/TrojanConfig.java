@@ -35,6 +35,9 @@ public class TrojanConfig implements Parcelable {
 
     // Class Scoped Static Definitions
 
+    // URI
+    public static final String SCHEMA = "trojan";
+
     // Tags
     public static final String SINGLE_CONFIG_TAG = "TrojanConfig";
     public static final String CONFIG_LIST_TAG = "TrojanConfigList";
@@ -394,7 +397,7 @@ public class TrojanConfig implements Parcelable {
     public static String toURIString(TrojanConfig trojanConfig) {
         URI trojanUri;
         try {
-            trojanUri = new URI("trojan",
+            trojanUri = new URI(SCHEMA,
                     trojanConfig.getPassword(),
                     trojanConfig.getRemoteAddr(),
                     trojanConfig.getRemotePort(),
@@ -419,7 +422,7 @@ public class TrojanConfig implements Parcelable {
         if (scheme == null) {
             return null;
         }
-        if (!scheme.equals("trojan"))
+        if (!scheme.equals(SCHEMA))
             return null;
         String host = trojanUri.getHost();
         int port = trojanUri.getPort();
