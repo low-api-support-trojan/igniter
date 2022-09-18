@@ -12,6 +12,7 @@ import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -180,6 +181,10 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         app = IgniterApplication.getApplication();
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setIcon(R.mipmap.ic_launcher);
 
 
         rootViewGroup = findViewById(R.id.rootScrollView);

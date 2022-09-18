@@ -110,7 +110,7 @@ public class ClashConfig {
         return DEFAULT_TROJAN_PORT;
     }
 
-    public void startClash(String path, int port, int proxy, boolean enableLan) {
+    public static void startClash(String path, int port, int proxy, boolean enableLan) {
         ClashStartOptions clashStartOptions = new ClashStartOptions();
         clashStartOptions.setHomeDir(path);
         clashStartOptions.setTrojanProxyServer("127.0.0.1:" + proxy);

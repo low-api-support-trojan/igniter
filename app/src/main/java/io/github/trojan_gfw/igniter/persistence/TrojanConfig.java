@@ -60,7 +60,6 @@ public class TrojanConfig implements Parcelable {
     private static JSONObject defaultJSON;
 
     // Object Scoped members
-    File filename;
     private String localAddr;
     private int localPort;
     private String remoteAddr;
@@ -73,6 +72,7 @@ public class TrojanConfig implements Parcelable {
 
     private JSONObject json;
 
+    private JSONArray servers;
 
     // Global Config
     public static void init(Storage storage) {
