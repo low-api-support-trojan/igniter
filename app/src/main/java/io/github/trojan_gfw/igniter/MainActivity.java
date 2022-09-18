@@ -18,6 +18,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
     private Switch ipv6Switch;
     private Switch verifySwitch;
     private Switch clashSwitch;
+    private Switch enableLanSwitch;
     private TextView clashLink;
     private Button startStopButton;
     private EditText trojanURLText;
@@ -119,24 +122,6 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         }
     };
 
-//    private void copyRawResourceToDir(int resId, String destPathName, boolean override) {
-//        File file = new File(destPathName);
-//        if (override || !file.exists()) {
-//            try {
-//                try (InputStream is = getResources().openRawResource(resId);
-//                     FileOutputStream fos = new FileOutputStream(file)) {
-//                    byte[] buf = new byte[1024];
-//                    int len;
-//                    while ((len = is.read(buf)) > 0) {
-//                        fos.write(buf, 0, len);
-//                    }
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-
     private void updateViews(int state) {
         proxyState = state;
         boolean inputEnabled;
@@ -173,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         trojanURLText.setEnabled(inputEnabled);
         verifySwitch.setEnabled(inputEnabled);
         clashSwitch.setEnabled(inputEnabled);
+        enableLanSwitch.setEnabled(inputEnabled);
         clashLink.setEnabled(inputEnabled);
     }
 
@@ -186,7 +172,6 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setIcon(R.mipmap.ic_launcher);
 
-
         rootViewGroup = findViewById(R.id.rootScrollView);
         Button saveServerIb = findViewById(R.id.saveConfigBtn);
         remoteAddrText = findViewById(R.id.remoteAddrText);
@@ -196,13 +181,10 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         ipv6Switch = findViewById(R.id.ipv6Switch);
         verifySwitch = findViewById(R.id.verifySwitch);
         clashSwitch = findViewById(R.id.clashSwitch);
+        enableLanSwitch = findViewById(R.id.switch_enable_lan);
         clashLink = findViewById(R.id.clashLink);
         clashLink.setMovementMethod(LinkMovementMethod.getInstance());
         startStopButton = findViewById(R.id.startStopButton);
-
-//        copyRawResourceToDir(R.raw.cacert, app.storage.getCaCertPath(), true);
-//        copyRawResourceToDir(R.raw.country, app.storage.getCountryMmdbPath(), true);
-//        copyRawResourceToDir(R.raw.clash_config, app.storage.getClashConfigPath(), false);
 
         remoteAddrText.addTextChangedListener(remoteAddrTextListener);
 
@@ -229,7 +211,30 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             }
         });
 
-        passwordText.addTextChangedListener(passwordTextListener);
+        enableLanSwitch.setChecked(app.trojanPreferences.isEnableLan());
+        enableLanSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                app.trojanPreferences.setEnableLan(isChecked);
+            }
+        });
+
+        passwordText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         ipv6Switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -246,62 +251,8 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             }
         });
 
-        trojanURLText.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                trojanURLText.selectAll();
-                return false;
-            }
-        });
 
-        trojanURLText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    trojanURLText.setInputType(EditorInfo.TYPE_CLASS_TEXT | EditorInfo.TYPE_TEXT_VARIATION_PASSWORD);
-                } else {
-                    // it seems we don't have to place cursor on the end for Trojan URL
-                    trojanURLText.setInputType(EditorInfo.TYPE_CLASS_TEXT);
-                }
-            }
-        });
-
-        trojanURLText.addTextChangedListener(new TextViewListener() {
-            @Override
-            protected void onTextChanged(String before, String old, String aNew, String after) {
-                // update TextView
-                startUpdates(); // to prevent infinite loop.
-                TrojanConfig ins = TrojanConfig.getInstance();
-                TrojanConfig parsedConfig = TrojanConfig.fromURIString(before + aNew + after);
-                if (parsedConfig != null) {
-                    String remoteAddress = parsedConfig.getRemoteAddr();
-                    int remotePort = parsedConfig.getRemotePort();
-                    String password = parsedConfig.getPassword();
-
-                    ins.setRemoteAddr(remoteAddress);
-                    ins.setRemotePort(remotePort);
-                    ins.setPassword(password);
-                }
-                endUpdates();
-            }
-        });
-
-        TextViewListener trojanConfigChangedTextViewListener = new TextViewListener() {
-            @Override
-            protected void onTextChanged(String before, String old, String aNew, String after) {
-                startUpdates();
-                String str = TrojanConfig.toURIString(TrojanConfig.getInstance());
-                if (str != null) {
-                    trojanURLText.setText(str);
-                }
-                endUpdates();
-            }
-        };
-
-        remoteAddrText.addTextChangedListener(trojanConfigChangedTextViewListener);
-        remotePortText.addTextChangedListener(trojanConfigChangedTextViewListener);
-        passwordText.addTextChangedListener(trojanConfigChangedTextViewListener);
-
+        initURIEditor();
         startStopButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (!TrojanConfig.getInstance().isValidRunningConfig()) {
@@ -582,5 +533,68 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
     protected void onDestroy() {
         super.onDestroy();
         connection.disconnect(this);
+    }
+
+    public void initSwitchers() {
+
+    }
+
+    public void initURIEditor() {
+
+        trojanURLText.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                trojanURLText.selectAll();
+                return false;
+            }
+        });
+
+        trojanURLText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    trojanURLText.setInputType(EditorInfo.TYPE_CLASS_TEXT | EditorInfo.TYPE_TEXT_VARIATION_PASSWORD);
+                } else {
+                    // it seems we don't have to place cursor on the end for Trojan URL
+                    trojanURLText.setInputType(EditorInfo.TYPE_CLASS_TEXT);
+                }
+            }
+        });
+
+        trojanURLText.addTextChangedListener(new TextViewListener() {
+            @Override
+            protected void onTextChanged(String before, String old, String aNew, String after) {
+                // update TextView
+                startUpdates(); // to prevent infinite loop.
+                TrojanConfig ins = TrojanConfig.getInstance();
+                TrojanConfig parsedConfig = TrojanConfig.fromURIString(before + aNew + after);
+                if (parsedConfig != null) {
+                    String remoteAddress = parsedConfig.getRemoteAddr();
+                    int remotePort = parsedConfig.getRemotePort();
+                    String password = parsedConfig.getPassword();
+
+                    ins.setRemoteAddr(remoteAddress);
+                    ins.setRemotePort(remotePort);
+                    ins.setPassword(password);
+                }
+                endUpdates();
+            }
+        });
+
+        TextViewListener trojanConfigChangedTextViewListener = new TextViewListener() {
+            @Override
+            protected void onTextChanged(String before, String old, String aNew, String after) {
+                startUpdates();
+                String str = TrojanConfig.toURIString(TrojanConfig.getInstance());
+                if (str != null) {
+                    trojanURLText.setText(str);
+                }
+                endUpdates();
+            }
+        };
+
+        remoteAddrText.addTextChangedListener(trojanConfigChangedTextViewListener);
+        remotePortText.addTextChangedListener(trojanConfigChangedTextViewListener);
+        passwordText.addTextChangedListener(trojanConfigChangedTextViewListener);
     }
 }

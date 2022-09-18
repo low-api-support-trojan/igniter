@@ -19,6 +19,7 @@
     <string name="verify_certificate">Verify Certificate</string>
     <string name="label_clash">Bypass China with <a href="https://github.com/Dreamacro/clash">Clash</a></string>
     <string name="enable_ipv6">Enable IPv6</string>
+    <string name="enable_lan">Enable LAN</string>
     <string name="bc_service_state">io.github.trojan_gfw.igniter.BC_SERVICE_STATE</string>
     <string name="stop_service">io.github.trojan_gfw.igniter.STOP_SERVICE</string>
     <string name="bind_service">io.github.trojan_gfw.igniter.BIND_SERVICE</string>
