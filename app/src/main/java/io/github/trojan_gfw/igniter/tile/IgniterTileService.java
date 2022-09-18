@@ -118,7 +118,7 @@ public class IgniterTileService extends TileService implements TrojanConnection.
         LogHelper.i(TAG, "onClick");
         IgniterApplication app = IgniterApplication.getApplication();
 
-        if (app.trojanPreferences.isFirstStart()) {
+        if (app.trojanPreferences.isEverStarted()) {
             // if user never open Igniter before, when he/she clicks the tile, it is necessary
             // to start the launcher activity for resource preparation.
             Intent intent = new Intent(this, MainActivity.class);

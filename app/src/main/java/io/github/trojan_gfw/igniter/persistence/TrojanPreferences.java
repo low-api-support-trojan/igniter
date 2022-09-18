@@ -1,7 +1,5 @@
 package io.github.trojan_gfw.igniter.persistence;
 
-import static android.content.Context.MODE_PRIVATE;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -15,12 +13,12 @@ public class TrojanPreferences {
     public static final String KEY_ENABLE_IPV6 = "enable_ipv6";
 
     // Multi Process shared keys
-    public static final String KEY_FIRST_START = "first_start";
+    public static final String KEY_EVER_STARTED = "first_start";
     public static final String KEY_ENABLE_CLASH = "enable_clash";
 
     boolean enableIPV6 = false;
     boolean enableClash = false;
-    boolean firstStart = true;
+    boolean everStarted = false;
     Context context;
     SharedPreferences sharedPreferences;
     SharedPreferences multiProcessSharedPreferences;
@@ -30,7 +28,7 @@ public class TrojanPreferences {
         sharedPreferences = context.getSharedPreferences(TROJAN_PREFERENCE_NAME, Context.MODE_PRIVATE);
         multiProcessSharedPreferences = context.getSharedPreferences(TROJAN_MULTI_PROCESS_PREFERENCE_NAME, Context.MODE_MULTI_PROCESS);
         enableIPV6 = sharedPreferences.getBoolean(KEY_ENABLE_IPV6, false);
-        firstStart = multiProcessSharedPreferences.getBoolean(KEY_FIRST_START, true);
+        everStarted = multiProcessSharedPreferences.getBoolean(KEY_EVER_STARTED, false);
         enableClash = multiProcessSharedPreferences.getBoolean(KEY_ENABLE_CLASH, false);
     }
 
@@ -61,13 +59,13 @@ public class TrojanPreferences {
         return multiProcessSharedPreferences.getBoolean(key, fallback);
     }
 
-    public boolean isFirstStart() {
-        return firstStart;
+    public boolean isEverStarted() {
+        return everStarted;
     }
 
-    public void setFirstStart(boolean firstStart) {
-        this.firstStart = firstStart;
-        setBoolean(KEY_FIRST_START, firstStart);
+    public void setEverStarted(boolean everStarted) {
+        this.everStarted = everStarted;
+        setBoolean(KEY_EVER_STARTED, everStarted);
     }
 
     public boolean getEnableClash() {

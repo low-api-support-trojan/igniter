@@ -1,5 +1,7 @@
 package io.github.trojan_gfw.igniter.persistence;
 
+import android.util.Log;
+
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -36,6 +38,7 @@ public class ClashConfig {
             fileInputStream = new FileInputStream(filename);
             yaml = new Yaml();
             data = (Map<String, Object>) yaml.load(fileInputStream);
+            Log.wtf("CLASH", data.toString());
             fileInputStream.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();

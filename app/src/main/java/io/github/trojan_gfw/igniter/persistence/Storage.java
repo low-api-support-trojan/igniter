@@ -132,7 +132,7 @@ public class Storage {
         return true;
     }
 
-    public void init() {
+    public void reset() {
         String[] paths = {
                 getCaCertPath(),
                 getCountryMmdbPath(),
@@ -147,33 +147,33 @@ public class Storage {
         for (int i = 0; i < ids.length; i++) {
             File file = new File(paths[i]);
             try {
-                if (file.exists()) {
-                    if (!read(paths[i]).equals("")) {
-                        continue;
-                    }
-                } else {
+                if (!file.exists()) {
                     file.createNewFile();
                 }
-                String output = readRawText(ids[i]);
-                write(paths[i], output.getBytes(StandardCharsets.UTF_8));
+                byte[] output = readRawBytes(ids[i]);
+                write(paths[i], output);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public String readRawText(int id) {
+    public byte[] readRawBytes(int id) {
 
         try {
             Resources res = context.getResources();
             InputStream inputStream = res.openRawResource(id);
             byte[] b = new byte[inputStream.available()];
             inputStream.read(b);
-            return new String(b);
+            return b;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public String readRawText(int id) {
+        return new String(readRawBytes(id));
     }
 
     public JSONObject readRawJSON(int id) {
@@ -187,7 +187,7 @@ public class Storage {
         return null;
     }
 
-    public void reset() {
+    public void deleteConfigs() {
         String[] paths = {
                 getCaCertPath(),
                 getCountryMmdbPath(),

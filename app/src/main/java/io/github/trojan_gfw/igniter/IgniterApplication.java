@@ -1,7 +1,6 @@
 package io.github.trojan_gfw.igniter;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.Intent;
 
 import androidx.core.content.ContextCompat;
@@ -31,10 +30,13 @@ public class IgniterApplication extends Application {
         trojanPreferences = new TrojanPreferences(this);
 
         storage = new Storage(this);
+        if (!trojanPreferences.isEverStarted()) {
+            storage.reset();
+            trojanPreferences.setEverStarted(true);
+        }
         TrojanConfig.init(storage);
         trojanConfig = TrojanConfig.getInstance();
         clashConfig = new ClashConfig(storage.getClashConfigPath());
-        //        storage.init();
     }
 
     public void startProxyService() {
