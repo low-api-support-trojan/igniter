@@ -73,16 +73,8 @@ public class TrojanConfig implements Parcelable {
 
     // Global Config
     public static void init(Storage storage) {
-        try {
-            Resources res = storage.context.getResources();
-            InputStream inputStream = res.openRawResource(R.raw.config);
 
-            byte[] b = new byte[inputStream.available()];
-            inputStream.read(b);
-            defaultJSON = new JSONObject(new String(b));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        defaultJSON = storage.readRawJSON(R.raw.config);
 
         String filename = storage.getTrojanConfigPath();
         TrojanConfig trojanConfig = TrojanConfig.read(filename);
@@ -175,7 +167,7 @@ public class TrojanConfig implements Parcelable {
         return toJSON().toString();
     }
 
-    public TrojanConfig fromJSON(JSONObject from)  {
+    public TrojanConfig fromJSON(JSONObject from) {
         try {
             json = new JSONObject(from.toString());
             this.localAddr = json.getString(KEY_LOCAL_ADDR);
@@ -190,6 +182,7 @@ public class TrojanConfig implements Parcelable {
             this.tls13CipherList = ssl.getString(KEY_TLS13_CIPHER_LIST);
         } catch (JSONException e) {
             e.printStackTrace();
+            return null;
         }
         return this;
     }
@@ -311,23 +304,10 @@ public class TrojanConfig implements Parcelable {
 
     @Nullable
     public static TrojanConfig read(String filename) {
-        File file = new File(filename);
-        if (!file.exists()) {
-            return null;
-        }
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-            TrojanConfig trojanConfig = new TrojanConfig();
-            trojanConfig.fromJSONString(sb.toString());
-            return trojanConfig;
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
+
+        JSONObject json = Storage.readJSON(filename);
+        TrojanConfig trojanConfig = new TrojanConfig();
+        return trojanConfig.fromJSON(json);
     }
 
     public static void write(TrojanConfig trojanConfig, String filename) {

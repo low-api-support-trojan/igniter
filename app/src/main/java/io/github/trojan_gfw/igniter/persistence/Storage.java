@@ -3,9 +3,13 @@ package io.github.trojan_gfw.igniter.persistence;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Environment;
 
 import androidx.core.content.ContextCompat;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -80,6 +84,16 @@ public class Storage {
         }
     }
 
+    public static JSONObject readJSON(String filename) {
+        try {
+            String jsonStr = read(filename);
+            return new JSONObject(jsonStr);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public String getCountryMmdbPath() {
         return getPath(FILES, context.getString(R.string.country_mmdb_config));
     }
@@ -148,17 +162,29 @@ public class Storage {
         }
     }
 
-    public String readRawText(int id) throws IOException {
-        InputStream is = context.getResources().openRawResource(id);
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        String output = "";
-        String strLine;
-        while ((strLine = br.readLine()) != null) {
-            output += strLine + "\n";
+    public String readRawText(int id) {
+
+        try {
+            Resources res = context.getResources();
+            InputStream inputStream = res.openRawResource(id);
+            byte[] b = new byte[inputStream.available()];
+            inputStream.read(b);
+            return new String(b);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        br.close();
-        is.close();
-        return output;
+        return null;
+    }
+
+    public JSONObject readRawJSON(int id) {
+
+        try {
+            String rawText = readRawText(id);
+            return new JSONObject(rawText);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void reset() {

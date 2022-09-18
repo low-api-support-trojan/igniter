@@ -73,12 +73,14 @@ public class NetWorkConfig {
 
     public static String startService(IgniterApplication app, int fd) {
         JNIHelper.trojan(app.storage.getTrojanConfigPath());
-        long trojanPort = app.clashConfig.getTrojanPort();
-        long clashSocksPort = app.clashConfig.getPort();
+
         boolean enableClash = app.trojanPreferences.enableClash;
         boolean enableIPV6 = app.trojanPreferences.enableIPV6;
+        long trojanPort = app.trojanConfig.getLocalPort();
+        long clashSocksPort = 0;
         long tun2socksPort;
         if (enableClash) {
+            clashSocksPort = app.clashConfig.getPort();
             ClashConfig.startClash(app.getFilesDir().toString(),
                     (int)clashSocksPort, (int)trojanPort);
             tun2socksPort = clashSocksPort;

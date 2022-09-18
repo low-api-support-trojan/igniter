@@ -28,14 +28,13 @@ public class IgniterApplication extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+        trojanPreferences = new TrojanPreferences(this);
+
         storage = new Storage(this);
-        storage.init();
-
-        clashConfig = new ClashConfig(storage.getClashConfigPath());
-
         TrojanConfig.init(storage);
         trojanConfig = TrojanConfig.getInstance();
-        trojanPreferences = new TrojanPreferences(this);
+        clashConfig = new ClashConfig(storage.getClashConfigPath());
+        //        storage.init();
     }
 
     public void startProxyService() {
