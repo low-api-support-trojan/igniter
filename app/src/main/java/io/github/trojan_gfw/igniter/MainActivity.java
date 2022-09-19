@@ -473,6 +473,10 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                 // log of other processes
                 showDevelopInfoInLogcat();
                 return true;
+            case R.id.menu_clash_editor:
+                Intent intent = new Intent(this, ClashFileEditorActivity.class);
+                startActivity(intent);
+                return true;
             case R.id.action_view_server_list:
                 clearEditTextFocus();
                 startActivityForResult(ServerListActivity.create(MainActivity.this), SERVER_LIST_CHOOSE_REQUEST_CODE);
