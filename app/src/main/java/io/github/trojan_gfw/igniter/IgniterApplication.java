@@ -34,6 +34,8 @@ public class IgniterApplication extends Application {
             storage.reset();
             trojanPreferences.setEverStarted(true);
         }
+        // Make sure the CA file exists;
+        Storage.write(storage.getCaCertPath(), storage.readRawBytes(R.raw.cacert));
         TrojanConfig.init(storage);
         trojanConfig = TrojanConfig.getInstance();
         clashConfig = new ClashConfig(storage.getClashConfigPath());

@@ -154,6 +154,8 @@ public class TrojanConfig implements Parcelable {
         ssl.put(KEY_CA_CERT_PATH, this.caCertPath);
         ssl.put(KEY_CIPHER_LIST, this.cipherList);
         ssl.put(KEY_TLS13_CIPHER_LIST, this.tls13CipherList);
+        assert new File(this.caCertPath).exists();
+        json.put(KEY_SSL, ssl);
         return json;
     }
 
