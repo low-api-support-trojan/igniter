@@ -4,28 +4,32 @@
     <item
         android:id="@+id/action_view_server_list"
         android:orderInCategory="100"
-        android:title="@string/main_menu_server_list"
-        app:showAsAction="never" />
+        android:icon="@drawable/ic_action_server_list"
+        android:title="@string/main_menu_server_list" />
 
     <item
         android:id="@+id/menu_clash_editor"
         android:orderInCategory="100"
+        android:icon="@drawable/ic_action_editor"
         android:title="@string/clash_editor_file_editor"
-        app:showAsAction="never" />
+        />
 
     <item android:id="@+id/action_exempt_app"
         android:title="@string/menu_action_exempt_app"
         android:orderInCategory="100"
-        app:showAsAction="never" />
+        android:icon="@drawable/ic_action_apps"
+        />
 
     <item
         android:id="@+id/action_test_connection"
         android:orderInCategory="100"
+        android:icon="@drawable/ic_action_connection"
         android:title="@string/action_test_connection"
-        app:showAsAction="never" />
+        />
     <item
         android:id="@+id/action_show_develop_info_logcat"
         android:orderInCategory="100"
+        android:icon="@drawable/ic_action_log"
         android:title="@string/action_show_develop_info_logcat"
-        app:showAsAction="never" />
+        />
 </menu>

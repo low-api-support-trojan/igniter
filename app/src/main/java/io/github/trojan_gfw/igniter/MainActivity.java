@@ -13,6 +13,7 @@ import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -27,6 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.core.app.ActivityCompat;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -115,8 +117,8 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             startUpdates(); // to prevent infinite loop.
             if (localOrClashPortText.hasFocus()) {
                 String portStr = localOrClashPortText.getText().toString();
-                    int port = Integer.parseInt(portStr);
-                    NetWorkConfig.setPort(app, port);
+                int port = Integer.parseInt(portStr);
+                NetWorkConfig.setPort(app, port);
             }
             endUpdates();
         }
@@ -452,10 +454,17 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         }
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        if (menu instanceof MenuBuilder) {
+            MenuBuilder m = (MenuBuilder) menu;
+            m.setOptionalIconsVisible(true);
+        }
         return true;
     }
 

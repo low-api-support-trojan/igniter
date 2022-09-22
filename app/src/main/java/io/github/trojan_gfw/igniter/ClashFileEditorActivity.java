@@ -17,7 +17,6 @@ public class ClashFileEditorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_clash_file_editor);
         app = IgniterApplication.getApplication();
         clashConfigEditor = findViewById(R.id.edit_text_clash_file);
-
     }
 
     public void onLoad(View view) {
