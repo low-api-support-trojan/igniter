@@ -49,8 +49,8 @@ public class TrojanConfig implements Parcelable {
     public static final String KEY_CIPHER_LIST = "cipher";
     public static final String KEY_TLS13_CIPHER_LIST = "cipher_tls13";
 
-    private static TrojanConfig instance;
-    private static JSONObject defaultJSON;
+    private static TrojanConfig instance = null;
+    private static JSONObject defaultJSON = null;
 
     // Object Scoped members
     private String localAddr;
@@ -63,11 +63,10 @@ public class TrojanConfig implements Parcelable {
     private String cipherList;
     private String tls13CipherList;
 
-    private JSONObject json;
-
-    // Global Config
-    public static void init(Storage storage) {
-
+    public static TrojanConfig getInstance(Storage storage) {
+        if (instance != null) {
+            return instance;
+        }
         defaultJSON = storage.readRawJSON(R.raw.config);
 
         String filename = storage.getTrojanConfigPath();
@@ -79,15 +78,8 @@ public class TrojanConfig implements Parcelable {
         }
 
         trojanConfig.setCaCertPath(storage.getCaCertPath());
-        setInstance(trojanConfig);
-    }
-
-    public static TrojanConfig getInstance() {
-        return instance;
-    }
-
-    public static void setInstance(TrojanConfig trojanConfig) {
         instance = trojanConfig;
+        return  instance;
     }
 
 
@@ -143,29 +135,34 @@ public class TrojanConfig implements Parcelable {
     };
 
     // JSON Processing
-    public JSONObject toJSON() throws JSONException {
-        json.put(KEY_LOCAL_ADDR, this.localAddr);
-        json.put(KEY_LOCAL_PORT, this.localPort);
-        json.put(KEY_REMOTE_ADDR, this.remoteAddr);
-        json.put(KEY_REMOTE_PORT, this.remotePort);
-        json.put(KEY_PASSWORD, new JSONArray().put(this.password));
-        JSONObject ssl = json.getJSONObject(KEY_SSL);
-        ssl.put(KEY_VERIFY_CERT, this.verifyCert);
-        ssl.put(KEY_CA_CERT_PATH, this.caCertPath);
-        ssl.put(KEY_CIPHER_LIST, this.cipherList);
-        ssl.put(KEY_TLS13_CIPHER_LIST, this.tls13CipherList);
-        assert new File(this.caCertPath).exists();
-        json.put(KEY_SSL, ssl);
-        return json;
+    public JSONObject toJSON() {
+        try {
+            JSONObject json = new JSONObject();
+            json.put(KEY_LOCAL_ADDR, this.localAddr);
+            json.put(KEY_LOCAL_PORT, this.localPort);
+            json.put(KEY_REMOTE_ADDR, this.remoteAddr);
+            json.put(KEY_REMOTE_PORT, this.remotePort);
+            json.put(KEY_PASSWORD, new JSONArray().put(this.password));
+            JSONObject ssl = json.getJSONObject(KEY_SSL);
+            ssl.put(KEY_VERIFY_CERT, this.verifyCert);
+            ssl.put(KEY_CA_CERT_PATH, this.caCertPath);
+            ssl.put(KEY_CIPHER_LIST, this.cipherList);
+            ssl.put(KEY_TLS13_CIPHER_LIST, this.tls13CipherList);
+            assert new File(this.caCertPath).exists();
+            json.put(KEY_SSL, ssl);
+            return json;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public String toJSONString() throws JSONException {
         return toJSON().toString();
     }
 
-    public TrojanConfig fromJSON(JSONObject from) {
+    public TrojanConfig fromJSON(JSONObject json) {
         try {
-            json = new JSONObject(from.toString());
             this.localAddr = json.getString(KEY_LOCAL_ADDR);
             this.localPort = json.getInt(KEY_LOCAL_PORT);
             this.remoteAddr = json.getString(KEY_REMOTE_ADDR);
@@ -314,7 +311,7 @@ public class TrojanConfig implements Parcelable {
             OutputStream fos = new FileOutputStream(file);
             fos.write(configStr.getBytes());
             fos.flush();
-        } catch (IOException | JSONException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

@@ -96,11 +96,10 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             // update TextView
             startUpdates(); // to prevent infinite loop.
             if (remotePortText.hasFocus()) {
-                TrojanConfig ins = app.trojanConfig;
                 String portStr = remotePortText.getText().toString();
                 try {
                     int port = Integer.parseInt(portStr);
-                    ins.setRemotePort(port);
+                    app.trojanConfig.setRemotePort(port);
                 } catch (NumberFormatException e) {
                     // Ignore when we get invalid number
                     e.printStackTrace();
@@ -242,8 +241,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         ipv6Switch.setOnCheckedChangeListener((buttonView, isChecked) -> app.trojanPreferences.setEnableIPV6(isChecked));
 
         verifySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            TrojanConfig ins = app.trojanConfig;
-            ins.setVerifyCert(isChecked);
+            app.trojanConfig.setVerifyCert(isChecked);
         });
 
 
@@ -281,14 +279,13 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             Threads.instance().runOnWorkThread(new Task() {
                 @Override
                 public void onRun() {
-                    TrojanConfig config = app.trojanConfig;
-                    TrojanConfig.write(config, app.storage.getTrojanConfigPath());
+                    TrojanConfig.write(app.trojanConfig, app.storage.getTrojanConfigPath());
                     try {
                         app.clashConfig.save(app.storage.getClashConfigPath());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    serverListDataManager.saveServerConfig(config);
+                    serverListDataManager.saveServerConfig(app.trojanConfig);
                     showSaveConfigResult();
                 }
             });
@@ -423,23 +420,23 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         super.onActivityResult(requestCode, resultCode, data);
         if (SERVER_LIST_CHOOSE_REQUEST_CODE == requestCode && resultCode == Activity.RESULT_OK && data != null) {
             trojanURLText.setText("");
-            final TrojanConfig config = data.getParcelableExtra(ServerListActivity.KEY_TROJAN_CONFIG);
-            if (config != null) {
-                config.setCaCertPath(app.storage.getCaCertPath());
-                TrojanConfig.setInstance(config);
+            final TrojanConfig temp = data.getParcelableExtra(ServerListActivity.KEY_TROJAN_CONFIG);
+            if (temp != null) {
+                temp.setCaCertPath(app.storage.getCaCertPath());
+                app.trojanConfig.fromJSON(temp.toJSON());
                 runOnUiThread(() -> {
-                    remoteAddressText.setText(config.getRemoteAddr());
-                    remotePortText.setText(String.valueOf(config.getRemotePort()));
+                    remoteAddressText.setText(app.trojanConfig.getRemoteAddr());
+                    remotePortText.setText(String.valueOf(app.trojanConfig.getRemotePort()));
                     if (app.trojanPreferences.getEnableClash()) {
                         localOrClashPortText.setText(String.valueOf(app.clashConfig.getPort()));
                     } else {
-                        localOrClashPortText.setText(String.valueOf(config.getLocalPort()));
+                        localOrClashPortText.setText(String.valueOf(app.trojanConfig.getLocalPort()));
                     }
-                    passwordText.setText(config.getPassword());
+                    passwordText.setText(app.trojanConfig.getPassword());
                 });
-                trojanURLText.setText(TrojanConfig.toURIString(config));
+                trojanURLText.setText(TrojanConfig.toURIString(app.trojanConfig));
                 ipv6Switch.setChecked(app.trojanPreferences.getEnableIPV6());
-                verifySwitch.setChecked(config.getVerifyCert());
+                verifySwitch.setChecked(app.trojanConfig.getVerifyCert());
             }
         } else if (EXEMPT_APP_CONFIGURE_REQUEST_CODE == requestCode && Activity.RESULT_OK == resultCode) {
             if (ProxyService.STARTED == proxyState) {
@@ -548,16 +545,15 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             protected void onTextChanged(String before, String old, String aNew, String after) {
                 // update TextView
                 startUpdates(); // to prevent infinite loop.
-                TrojanConfig ins = app.trojanConfig;
                 TrojanConfig parsedConfig = TrojanConfig.fromURIString(before + aNew + after);
                 if (parsedConfig != null) {
                     String remoteAddress = parsedConfig.getRemoteAddr();
                     int remotePort = parsedConfig.getRemotePort();
                     String password = parsedConfig.getPassword();
 
-                    ins.setRemoteAddr(remoteAddress);
-                    ins.setRemotePort(remotePort);
-                    ins.setPassword(password);
+                    app.trojanConfig.setRemoteAddr(remoteAddress);
+                    app.trojanConfig.setRemotePort(remotePort);
+                    app.trojanConfig.setPassword(password);
                 }
                 endUpdates();
             }

@@ -27,17 +27,16 @@ public class IgniterApplication extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+        init();
+    }
+
+    public void init() {
         trojanPreferences = new TrojanPreferences(this);
 
         storage = new Storage(this);
-        if (!trojanPreferences.isEverStarted()) {
-            storage.reset();
-            trojanPreferences.setEverStarted(true);
-        }
+        storage.check();
         // Make sure the CA file exists;
-        Storage.write(storage.getCaCertPath(), storage.readRawBytes(R.raw.cacert));
-        TrojanConfig.init(storage);
-        trojanConfig = TrojanConfig.getInstance();
+        trojanConfig = TrojanConfig.getInstance(storage);
         clashConfig = new ClashConfig(storage.getClashConfigPath());
     }
 

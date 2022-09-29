@@ -94,6 +94,19 @@ public class Storage {
         return null;
     }
 
+    public void reset(String filename, int resId) {
+        File file = new File(filename);
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            byte[] bytes = readRawBytes(resId);
+            write(filename, bytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public String getCountryMmdbPath() {
         return getPath(FILES, context.getString(R.string.country_mmdb_config));
     }
@@ -115,7 +128,7 @@ public class Storage {
     }
 
     public String getCaCertPath() {
-        return getPath(CACHE, context.getString(R.string.ca_cert_config));
+        return getPath(EXTERNAL, context.getString(R.string.ca_cert_config));
     }
 
     public boolean isExternalWritable() {
@@ -145,21 +158,11 @@ public class Storage {
         };
 
         for (int i = 0; i < ids.length; i++) {
-            File file = new File(paths[i]);
-            try {
-                if (!file.exists()) {
-                    file.createNewFile();
-                }
-                byte[] output = readRawBytes(ids[i]);
-                write(paths[i], output);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            reset(paths[i], ids[i]);
         }
     }
 
     public byte[] readRawBytes(int id) {
-
         try {
             Resources res = context.getResources();
             InputStream inputStream = res.openRawResource(id);
@@ -194,9 +197,34 @@ public class Storage {
                 getClashConfigPath()
         };
 
-        for(String filename: paths) {
+        for (String filename : paths) {
             File file = new File(filename);
             file.delete();
+        }
+    }
+
+    public void check() {
+        String[] paths = {
+                getCaCertPath(),
+                getCountryMmdbPath(),
+                getClashConfigPath(),
+                getTrojanConfigPath()
+        };
+        int[] ids = {
+                R.raw.cacert,
+                R.raw.country,
+                R.raw.clash_config,
+                R.raw.config
+        };
+        for (int i = 0; i < ids.length; i++) {
+            check(paths[i], ids[i]);
+        }
+    }
+
+    public void check(String filename, int resId) {
+        File file = new File(filename);
+        if (!file.exists()) {
+            reset(filename, resId);
         }
     }
 }
