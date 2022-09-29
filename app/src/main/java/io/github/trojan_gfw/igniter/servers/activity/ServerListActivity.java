@@ -3,17 +3,18 @@ package io.github.trojan_gfw.igniter.servers.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import io.github.trojan_gfw.igniter.IgniterApplication;
 import io.github.trojan_gfw.igniter.R;
-import io.github.trojan_gfw.igniter.common.app.BaseAppCompatActivity;
 import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.servers.data.ServerListDataManager;
 import io.github.trojan_gfw.igniter.servers.fragment.ServerListFragment;
 import io.github.trojan_gfw.igniter.servers.presenter.ServerListPresenter;
 
-public class ServerListActivity extends BaseAppCompatActivity {
+public class ServerListActivity extends AppCompatActivity {
     public static final String KEY_TROJAN_CONFIG = "trojan_config";
 
     public static Intent create(Context context) {

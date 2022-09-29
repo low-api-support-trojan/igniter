@@ -3,19 +3,20 @@ package io.github.trojan_gfw.igniter.exempt.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import android.view.Window;
 
 import io.github.trojan_gfw.igniter.IgniterApplication;
 import io.github.trojan_gfw.igniter.R;
-import io.github.trojan_gfw.igniter.common.app.BaseAppCompatActivity;
 import io.github.trojan_gfw.igniter.exempt.contract.ExemptAppContract;
 import io.github.trojan_gfw.igniter.exempt.data.ExemptAppDataManager;
 import io.github.trojan_gfw.igniter.exempt.fragment.ExemptAppFragment;
 import io.github.trojan_gfw.igniter.exempt.presenter.ExemptAppPresenter;
 import io.github.trojan_gfw.igniter.persistence.Storage;
 
-public class ExemptAppActivity extends BaseAppCompatActivity {
+public class ExemptAppActivity extends AppCompatActivity {
     private ExemptAppContract.Presenter mPresenter;
     Storage storage;
 
