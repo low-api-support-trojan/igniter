@@ -175,6 +175,19 @@
             android:text="@string/enable_lan"
             android:textSize="@dimen/text_size" />
 
+        <Switch
+            android:id="@+id/switch_enable_auto_start"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="16dp"
+            android:checked="false"
+            android:minHeight="48dp"
+            android:text="@string/enable_auto_start"
+            android:textSize="@dimen/text_size" />
+
         <Button
             android:id="@+id/saveConfigBtn"
             android:layout_width="match_parent"

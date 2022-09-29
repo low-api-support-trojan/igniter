@@ -70,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
     private Switch clashSwitch;
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     private Switch enableLanSwitch;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
+    private Switch enableAutoStartSwitch;
     private TextView clashLink;
     private Button startStopButton;
     private EditText trojanURLText;
@@ -173,6 +175,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         verifySwitch.setEnabled(inputEnabled);
         clashSwitch.setEnabled(inputEnabled);
         enableLanSwitch.setEnabled(inputEnabled);
+        enableAutoStartSwitch.setEnabled(inputEnabled);
         clashLink.setEnabled(inputEnabled);
     }
 
@@ -198,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         verifySwitch = findViewById(R.id.verifySwitch);
         clashSwitch = findViewById(R.id.clashSwitch);
         enableLanSwitch = findViewById(R.id.switch_enable_lan);
+        enableAutoStartSwitch = findViewById(R.id.switch_enable_auto_start);
         clashLink = findViewById(R.id.clashLink);
         clashLink.setMovementMethod(LinkMovementMethod.getInstance());
         startStopButton = findViewById(R.id.startStopButton);
@@ -236,6 +240,12 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         enableLanSwitch.setChecked(app.trojanPreferences.isEnableLan());
         enableLanSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             app.trojanPreferences.setEnableLan(isChecked);
+        });
+
+        enableAutoStartSwitch.setChecked(app.trojanPreferences.isEnableAutoStart());
+        enableAutoStartSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Log.v(TAG, " auto start : " + isChecked);
+            app.trojanPreferences.setEnableAutoStart(isChecked);
         });
 
         ipv6Switch.setOnCheckedChangeListener((buttonView, isChecked) -> app.trojanPreferences.setEnableIPV6(isChecked));
@@ -295,6 +305,12 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         if (!app.storage.isExternalWritable() && ActivityCompat
                 .shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             requestReadWriteExternalStoragePermission();
+        }
+
+        boolean isAutoStart = app.trojanPreferences.isEnableAutoStart();
+
+        if (isAutoStart) {
+            startStopButton.performClick();
         }
     }
 

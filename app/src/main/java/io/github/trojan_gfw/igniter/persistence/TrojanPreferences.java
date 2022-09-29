@@ -15,13 +15,17 @@ public class TrojanPreferences {
     public static final String KEY_EVER_STARTED = "ever_started";
     public static final String KEY_ENABLE_CLASH = "enable_clash";
     public static final String KEY_ENABLE_LAN = "enable_lan";
+    public static final String KEY_ENABLE_AUTO_START = "enable_auto_start";
     public static final String KEY_SELECTED_INDEX = "selected_index";
 
     boolean enableIPV6 = false;
     boolean enableClash = false;
     boolean everStarted = false;
     boolean enableLan = false;
+    boolean enableAutoStart = false;
+
     int selectedIndex = 0;
+
 
     Context context;
     SharedPreferences sharedPreferences;
@@ -33,6 +37,7 @@ public class TrojanPreferences {
         everStarted = sharedPreferences.getBoolean(KEY_EVER_STARTED, false);
         enableClash = sharedPreferences.getBoolean(KEY_ENABLE_CLASH, false);
         enableLan = sharedPreferences.getBoolean(KEY_ENABLE_LAN, false);
+        enableAutoStart = sharedPreferences.getBoolean(KEY_ENABLE_AUTO_START, false);
         selectedIndex = sharedPreferences.getInt(KEY_SELECTED_INDEX, 0);
     }
 
@@ -95,6 +100,15 @@ public class TrojanPreferences {
     public void setEnableLan(boolean enableLan) {
         this.enableLan = enableLan;
         setBoolean(KEY_ENABLE_LAN, enableLan);
+    }
+
+    public boolean isEnableAutoStart() {
+        return enableAutoStart;
+    }
+
+    public void setEnableAutoStart(boolean enableAutoStart) {
+        this.enableAutoStart = enableAutoStart;
+        setBoolean(KEY_ENABLE_AUTO_START, enableAutoStart);
     }
 
     public int getSelectedIndex() {
