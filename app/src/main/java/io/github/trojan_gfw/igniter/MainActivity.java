@@ -313,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
 
     @Override
     public void onServiceConnected(final ITrojanService service) {
-        LogHelper.i(TAG, "onServiceConnected");
+        Log.i(TAG, "onServiceConnected");
         trojanService = service;
         Threads.instance().runOnWorkThread(new Task() {
             @Override
@@ -330,13 +330,13 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
 
     @Override
     public void onServiceDisconnected() {
-        LogHelper.i(TAG, "onServiceConnected");
+        Log.i(TAG, "onServiceConnected");
         trojanService = null;
     }
 
     @Override
     public void onStateChanged(int state, String msg) {
-        LogHelper.i(TAG, "onStateChanged# state: " + state + " msg: " + msg);
+        Log.i(TAG, "onStateChanged# state: " + state + " msg: " + msg);
         updateViews(state);
     }
 
@@ -350,7 +350,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             Toast.makeText(getApplicationContext(), getString(R.string.connected_to__in__ms,
                     testUrl, String.valueOf(delay)), Toast.LENGTH_LONG).show();
         } else {
-            LogHelper.e(TAG, "TestError: " + error);
+            Log.e(TAG, "TestError: " + error);
             Toast.makeText(getApplicationContext(),
                     getString(R.string.failed_to_connect_to__,
                             testUrl, error),
@@ -360,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
 
     @Override
     public void onBinderDied() {
-        LogHelper.i(TAG, "onBinderDied");
+        Log.i(TAG, "onBinderDied");
         connection.disconnect(this);
         // connect the new binder
         // todo is it necessary to re-connect?
@@ -468,12 +468,6 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         switch (item.getItemId()) {
             case R.id.action_test_connection:
                 testConnection();
-                return true;
-            case R.id.action_show_develop_info_logcat:
-                // log of this process
-                LogHelper.showDevelopInfoInLogcat();
-                // log of other processes
-                showDevelopInfoInLogcat();
                 return true;
             case R.id.menu_clash_editor:
                 Intent intent = new Intent(this, ClashFileEditorActivity.class);

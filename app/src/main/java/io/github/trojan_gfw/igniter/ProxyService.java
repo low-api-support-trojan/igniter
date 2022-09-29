@@ -15,6 +15,7 @@ import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.core.app.NotificationCompat;
@@ -80,7 +81,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
     private final IBinder mBinder = new ITrojanService.Stub() {
         @Override
         public int getState() {
-            LogHelper.i(TAG, "IBinder getState# : " + state);
+            Log.i(TAG, "IBinder getState# : " + state);
             return state;
         }
 
@@ -95,24 +96,24 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
 
         @Override
         public void showDevelopInfoInLogcat() {
-            LogHelper.showDevelopInfoInLogcat();
+//            Log.showDevelopInfoInLogcat();
         }
 
         @Override
         public void registerCallback(ITrojanServiceCallback callback) {
-            LogHelper.i(TAG, "IBinder registerCallback#");
+            Log.i(TAG, "IBinder registerCallback#");
             mCallbackList.register(callback);
         }
 
         @Override
         public void unregisterCallback(ITrojanServiceCallback callback) {
-            LogHelper.i(TAG, "IBinder unregisterCallback#");
+            Log.i(TAG, "IBinder unregisterCallback#");
             mCallbackList.unregister(callback);
         }
     };
 
     private void setState(int state) {
-        LogHelper.i(TAG, "setState: " + state);
+        Log.i(TAG, "setState: " + state);
         this.state = state;
         notifyStateChange();
     }
@@ -120,7 +121,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
     @Override
     public void onCreate() {
         super.onCreate();
-        LogHelper.i(TAG, "onCreate");
+        Log.i(TAG, "onCreate");
         IntentFilter filter = new IntentFilter();
         filter.addAction(getString(R.string.stop_service));
         registerReceiver(mStopBroadcastReceiver, filter);
@@ -130,7 +131,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
     @Override
     public void onDestroy() {
         super.onDestroy();
-        LogHelper.i(TAG, "onDestroy");
+        Log.i(TAG, "onDestroy");
         mCallbackList.kill();
         setState(STOPPED);
         unregisterReceiver(mStopBroadcastReceiver);
@@ -221,13 +222,13 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
 
         // it's required to create a notification channel before startForeground on SDK >= Android O
         createNotificationChannel(channelId);
-        LogHelper.i(TAG, "start foreground notification");
+        Log.i(TAG, "start foreground notification");
         startForeground(IGNITER_STATUS_NOTIFY_MSG_ID, builder.build());
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        LogHelper.i(TAG, "onStartCommand");
+        Log.i(TAG, "onStartCommand");
         // In order to keep the service long-lived, starting the service by Context.startForegroundService()
         // might be the easiest way. According to the official indication, a service which is started
         // by C     ontext.startForegroundService() must call Service.startForeground() within 5 seconds.
@@ -245,7 +246,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
                 getString(R.string.app_name),
                 packageNames
         );
-        LogHelper.i("VPN", "pfd established");
+        Log.i("VPN", "pfd established");
         if (pfd == null) {
             stop();
             return START_NOT_STICKY;
@@ -273,7 +274,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
     }
 
     private void shutdown() {
-        LogHelper.i(TAG, "shutdown");
+        Log.i(TAG, "shutdown");
         setState(STOPPING);
 
         NetWorkConfig.stop(app);

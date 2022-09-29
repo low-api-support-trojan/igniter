@@ -6,11 +6,12 @@ import android.os.Build;
 import android.os.RemoteException;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import io.github.trojan_gfw.igniter.IgniterApplication;
-import io.github.trojan_gfw.igniter.LogHelper;
 import io.github.trojan_gfw.igniter.MainActivity;
 import io.github.trojan_gfw.igniter.ProxyService;
 import io.github.trojan_gfw.igniter.R;
@@ -31,20 +32,20 @@ public class IgniterTileService extends TileService implements TrojanConnection.
     @Override
     public void onStartListening() {
         super.onStartListening();
-        LogHelper.i(TAG, "onStartListening");
+        Log.i(TAG, "onStartListening");
         mConnection.connect(this, this);
     }
 
     @Override
     public void onStopListening() {
         super.onStopListening();
-        LogHelper.i(TAG, "onStopListening");
+        Log.i(TAG, "onStopListening");
         mConnection.disconnect(this);
     }
 
     @Override
     public void onServiceConnected(ITrojanService service) {
-        LogHelper.i(TAG, "onServiceConnected");
+        Log.i(TAG, "onServiceConnected");
         try {
             int state = service.getState();
             updateTile(state);
@@ -59,12 +60,12 @@ public class IgniterTileService extends TileService implements TrojanConnection.
 
     @Override
     public void onServiceDisconnected() {
-        LogHelper.i(TAG, "onServiceDisconnected");
+        Log.i(TAG, "onServiceDisconnected");
     }
 
     @Override
     public void onStateChanged(int state, String msg) {
-        LogHelper.i(TAG, "onStateChanged# state: " + state + ", msg: " + msg);
+        Log.i(TAG, "onStateChanged# state: " + state + ", msg: " + msg);
         updateTile(state);
     }
 
@@ -75,7 +76,7 @@ public class IgniterTileService extends TileService implements TrojanConnection.
 
     @Override
     public void onBinderDied() {
-        LogHelper.i(TAG, "onBinderDied");
+        Log.i(TAG, "onBinderDied");
     }
 
     private void updateTile(final @ProxyService.ProxyState int state) {
@@ -83,7 +84,7 @@ public class IgniterTileService extends TileService implements TrojanConnection.
         if (tile == null) {
             return;
         }
-        LogHelper.i(TAG, "updateTile with state: " + state);
+        Log.i(TAG, "updateTile with state: " + state);
         switch (state) {
             case ProxyService.STATE_NONE:
                 tile.setState(Tile.STATE_INACTIVE);
@@ -106,7 +107,7 @@ public class IgniterTileService extends TileService implements TrojanConnection.
                 tile.setLabel(getString(R.string.tile_stopping));
                 break;
             default:
-                LogHelper.e(TAG, "Unknown state: " + state);
+                Log.e(TAG, "Unknown state: " + state);
                 break;
         }
         tile.updateTile();
@@ -115,7 +116,7 @@ public class IgniterTileService extends TileService implements TrojanConnection.
     @Override
     public void onClick() {
         super.onClick();
-        LogHelper.i(TAG, "onClick");
+        Log.i(TAG, "onClick");
         IgniterApplication app = IgniterApplication.getApplication();
 
         if (app.trojanPreferences.isEverStarted()) {
@@ -144,7 +145,7 @@ public class IgniterTileService extends TileService implements TrojanConnection.
                         startProxyService();
                         break;
                     default:
-                        LogHelper.e(TAG, "Unknown state: " + state);
+                        Log.e(TAG, "Unknown state: " + state);
                         break;
                 }
             } catch (RemoteException e) {

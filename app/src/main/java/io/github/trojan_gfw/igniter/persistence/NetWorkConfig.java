@@ -12,7 +12,6 @@ import java.util.Set;
 import clash.Clash;
 import io.github.trojan_gfw.igniter.IgniterApplication;
 import io.github.trojan_gfw.igniter.JNIHelper;
-import io.github.trojan_gfw.igniter.LogHelper;
 import io.github.trojan_gfw.igniter.R;
 import tun2socks.Tun2socks;
 import tun2socks.Tun2socksStartOptions;

@@ -6,43 +6,39 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import clash.Clash;
 import clash.ClashStartOptions;
-import io.github.trojan_gfw.igniter.IgniterApplication;
 
 public class ClashConfig {
     public static String TAG = "ClashConfig";
     // KEYS
-    private static String KEY_SOCKS_PORT = "socks-port";
-    private static String KEY_PROXIES = "proxies";
-    private static String KEY_NAME = "name";
-    private static String KEY_PORT = "port";
-    private static String KEY_TROJAN_NAME = "trojan";
+    private static final String KEY_SOCKS_PORT = "socks-port";
+    private static final String KEY_PROXIES = "proxies";
+    private static final String KEY_NAME = "name";
+    private static final String KEY_PORT = "port";
+    private static final String KEY_TROJAN_NAME = "trojan";
 
-    private static int DEFAULT_PORT = 1080;
-    private static int DEFAULT_TROJAN_PORT = 1081;
+    //    private static final int DEFAULT_PORT = 1080;
+    private static final int DEFAULT_TROJAN_PORT = 1081;
 
     private String filename;
-    private FileInputStream fileInputStream;
     public Map<String, Object> data;
     Yaml yaml;
 
     public ClashConfig(String filename) {
         try {
             this.filename = filename;
-            fileInputStream = new FileInputStream(filename);
+            FileInputStream fileInputStream = new FileInputStream(filename);
             yaml = new Yaml();
             data = (Map<String, Object>) yaml.load(fileInputStream);
             Log.wtf("CLASH", data.toString());
             fileInputStream.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -78,18 +74,18 @@ public class ClashConfig {
     public void setTrojanPort(int port) {
         List<Map<String, Object>> proxies = (List<Map<String, Object>>) data.get(KEY_PROXIES);
         try {
-            for (int i = 0; i < proxies.size(); i++) {
-                Map<String, Object> map = proxies.get(i);
-                if (map.get(KEY_NAME).equals(KEY_TROJAN_NAME)) {
-                    map.put(KEY_PORT, port);
-                    proxies.set(i, map);
-                    break;
+            if (proxies != null) {
+                for (int i = 0; i < proxies.size(); i++) {
+                    Map<String, Object> map = proxies.get(i);
+                    if (Objects.equals(map.get(KEY_NAME), KEY_TROJAN_NAME)) {
+                        map.put(KEY_PORT, port);
+                        proxies.set(i, map);
+                        break;
+                    }
                 }
             }
             data.put(KEY_PROXIES, proxies);
             save(filename);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -101,10 +97,12 @@ public class ClashConfig {
 
     public int getTrojanPort() {
         List<Map<String, Object>> proxies = (List<Map<String, Object>>) data.get(KEY_PROXIES);
-        for (int i = 0; i < proxies.size(); i++) {
-            Map<String, Object> map = proxies.get(i);
-            if (map.get(KEY_NAME).equals(KEY_TROJAN_NAME)) {
-                return (int) map.get(KEY_PORT);
+        if (proxies != null) {
+            for (int i = 0; i < proxies.size(); i++) {
+                Map<String, Object> map = proxies.get(i);
+                if (Objects.equals(map.get(KEY_NAME), KEY_TROJAN_NAME)) {
+                    return (int) map.get(KEY_PORT);
+                }
             }
         }
         return DEFAULT_TROJAN_PORT;

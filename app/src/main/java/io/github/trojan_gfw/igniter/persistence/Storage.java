@@ -5,24 +5,18 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Environment;
+import android.util.Log;
 
 import androidx.core.content.ContextCompat;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 
-import io.github.trojan_gfw.igniter.IgniterApplication;
-import io.github.trojan_gfw.igniter.LogHelper;
 import io.github.trojan_gfw.igniter.R;
 
 public class Storage {
@@ -54,7 +48,7 @@ public class Storage {
 
     public static void print(String filename, String tag) {
         String result = read(filename);
-        LogHelper.v(tag, result);
+        Log.v(tag, result);
     }
 
     public static String read(String filename) {
