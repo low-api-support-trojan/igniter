@@ -6,6 +6,7 @@ import android.content.Intent;
 import androidx.core.content.ContextCompat;
 
 import io.github.trojan_gfw.igniter.persistence.ClashConfig;
+import io.github.trojan_gfw.igniter.persistence.ServerList;
 import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.persistence.TrojanPreferences;
@@ -22,6 +23,7 @@ public class IgniterApplication extends Application {
     public ClashConfig clashConfig;
     public TrojanConfig trojanConfig;
     public TrojanPreferences trojanPreferences;
+    public ServerList servers;
 
     @Override
     public void onCreate() {
@@ -38,6 +40,7 @@ public class IgniterApplication extends Application {
         // Make sure the CA file exists;
         trojanConfig = TrojanConfig.getInstance(storage);
         clashConfig = new ClashConfig(storage.getClashConfigPath());
+        servers = new ServerList(this);
     }
 
     public void startProxyService() {

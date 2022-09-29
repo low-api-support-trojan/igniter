@@ -5,6 +5,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.trojan_gfw.igniter.persistence.ServerList;
 import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 
@@ -17,7 +18,7 @@ public class ServerListDataManager implements ServerListDataSource {
 
     @Override
     public List<TrojanConfig> loadServerConfigList() {
-        return new ArrayList<>(TrojanConfig.readList(mConfigFilePath));
+        return new ArrayList<>(ServerList.read(mConfigFilePath));
     }
 
     @Override
@@ -52,7 +53,7 @@ public class ServerListDataManager implements ServerListDataSource {
 
     @Override
     public void replaceServerConfigs(List<TrojanConfig> list) {
-        TrojanConfig.writeList(list, mConfigFilePath);
-        Storage.print(mConfigFilePath, TrojanConfig.CONFIG_LIST_TAG);
+        ServerList.write(list, mConfigFilePath);
+        Storage.print(mConfigFilePath, ServerList.CONFIG_LIST_TAG);
     }
 }

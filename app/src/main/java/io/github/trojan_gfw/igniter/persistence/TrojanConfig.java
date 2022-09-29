@@ -33,7 +33,6 @@ public class TrojanConfig implements Parcelable {
 
     // Tags
     public static final String SINGLE_CONFIG_TAG = "TrojanConfig";
-    public static final String CONFIG_LIST_TAG = "TrojanConfigList";
 
     // Top Level Keys
     public static final String KEY_LOCAL_ADDR = "local_addr";
@@ -157,7 +156,7 @@ public class TrojanConfig implements Parcelable {
         }
     }
 
-    public String toJSONString() throws JSONException {
+    public String toJSONString() {
         return toJSON().toString();
     }
 
@@ -294,52 +293,6 @@ public class TrojanConfig implements Parcelable {
             }
         }
     }
-
-
-    public static void writeList(List<TrojanConfig> configList, String filename) {
-        try {
-            JSONArray jsonArray = new JSONArray();
-            for (TrojanConfig config : configList) {
-                JSONObject jsonObject = config.toJSON();
-                jsonArray.put(jsonObject);
-            }
-            String configStr = jsonArray.toString();
-            File file = new File(filename);
-            if (file.exists()) {
-                file.delete();
-            }
-            OutputStream fos = new FileOutputStream(file);
-            fos.write(configStr.getBytes());
-            fos.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @NonNull
-    public static List<TrojanConfig> readList(String filename) {
-        File file = new File(filename);
-        if (!file.exists()) {
-            return Collections.emptyList();
-        }
-        try (InputStream fis = new FileInputStream(file)) {
-            byte[] data = new byte[(int) file.length()];
-            fis.read(data);
-            String json = new String(data);
-            JSONArray jsonArr = new JSONArray(json);
-            int len = jsonArr.length();
-            List<TrojanConfig> list = new ArrayList<>(len);
-            for (int i = 0; i < len; i++) {
-                TrojanConfig tc = new TrojanConfig().fromJSON(jsonArr.getJSONObject(i));
-                list.add(tc);
-            }
-            return list;
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
-        return Collections.emptyList();
-    }
-
 
     public static String toURIString(TrojanConfig trojanConfig) {
         URI trojanUri;
