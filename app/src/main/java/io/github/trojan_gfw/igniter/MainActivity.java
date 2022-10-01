@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,7 +43,6 @@ import io.github.trojan_gfw.igniter.common.os.Threads;
 import io.github.trojan_gfw.igniter.connection.TrojanConnection;
 import io.github.trojan_gfw.igniter.exempt.activity.ExemptAppActivity;
 import io.github.trojan_gfw.igniter.persistence.NetWorkConfig;
-import io.github.trojan_gfw.igniter.persistence.Storage;
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanService;
 import io.github.trojan_gfw.igniter.servers.activity.ServerListActivity;
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             new ActivityResultCallback<ActivityResult>() {
                 @Override
                 public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
+                    if (result.getResultCode() != Activity.RESULT_OK) {
                         app.startProxyService();
                     }
                 }
@@ -140,8 +140,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             // update TextView
             startUpdates(); // to prevent infinite loop.
             if (remoteAddressText.hasFocus()) {
-                TrojanConfig ins = app.trojanConfig;
-                ins.setRemoteAddr(remoteAddressText.getText().toString());
+                app.trojanConfig.setRemoteAddr(remoteAddressText.getText().toString());
             }
             endUpdates();
         }
@@ -245,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         actionBar.setIcon(R.mipmap.ic_launcher);
 
         rootViewGroup = findViewById(R.id.rootScrollView);
-        Button saveServerIb = findViewById(R.id.saveConfigBtn);
+        ImageButton saveServerIb = findViewById(R.id.imageButton_save);
         remoteAddressText = findViewById(R.id.remoteAddrText);
         remotePortText = findViewById(R.id.remotePortText);
         localOrClashPortText = findViewById(R.id.localOrClashPortText);
@@ -314,18 +313,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                 return;
             }
             if (proxyState == ProxyService.STATE_NONE || proxyState == ProxyService.STOPPED) {
-                TrojanConfig.write(
-                        app.trojanConfig,
-                        app.storage.getTrojanConfigPath()
-                );
-                Storage.print(app.storage.getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
-                // start ProxyService
-                Intent i = VpnService.prepare(getApplicationContext());
-                if (i != null) {
-                    vpnLauncher.launch(i);
-                } else {
-                    app.startProxyService();
-                }
+                startVPN();
             } else if (proxyState == ProxyService.STARTED) {
                 // stop ProxyService
                 app.stopProxyService();
@@ -361,6 +349,21 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
 
         if (isAutoStart) {
             startStopButton.performClick();
+        }
+    }
+
+    public void startVPN() {
+        TrojanConfig.write(
+                app.trojanConfig,
+                app.storage.getTrojanConfigPath()
+        );
+//        Storage.print(app.storage.getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
+        // start ProxyService
+        Intent i = VpnService.prepare(getApplicationContext());
+        if (i != null) {
+            vpnLauncher.launch(i);
+        } else {
+            app.startProxyService();
         }
     }
 

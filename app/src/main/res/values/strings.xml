@@ -53,6 +53,10 @@
     <string name="main_save_success">@string/common_save_success</string>
     <string name="main_save_failed">Save failed</string>
 
+    <string name="save">Save</string>
+    <string name="play">Play</string>
+    <string name="stop">Stop</string>
+
     <string name="main_write_external_storage_permission_requirement">
         Igniter needs to read and write external storage for reading or writing exempted app
         list, which is recoverable even when Igniter is uninstalled. Denying the permission

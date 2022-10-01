@@ -5,6 +5,7 @@
     android:id="@+id/rootScrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:ignore="contentDescription"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -21,6 +22,37 @@
         android:gravity="center"
         >
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/imageButton_save"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/ic_action_save"
+                android:contentDescription="@string/save" />
+            <ImageButton
+                android:id="@+id/imageButton_play"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/ic_action_play"
+                android:contentDescription="@string/play" />
+            <ImageButton
+                android:id="@+id/imageButton_stop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/ic_action_stop"
+                android:contentDescription="@string/stop" />
+        </LinearLayout>
+
         <EditText
             android:id="@+id/remoteAddrText"
             android:layout_width="match_parent"
@@ -36,7 +68,8 @@
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView" />
+            app:layout_constraintTop_toBottomOf="@+id/imageView"
+            android:importantForAutofill="no" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -94,7 +127,7 @@
             android:layout_marginEnd="16dp"
             android:ems="10"
             android:hint="@string/trojan_url"
-            android:inputType="textPassword"
+            android:inputType="textUri"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -188,16 +221,16 @@
             android:text="@string/enable_auto_start"
             android:textSize="@dimen/text_size" />
 
-        <Button
-            android:id="@+id/saveConfigBtn"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/main_btn_height"
-            android:layout_margin="@dimen/main_btn_margin"
-            android:text="@string/main_save_config_btn"
-            android:textSize="@dimen/text_size"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/columnContainer" />
+<!--        <Button-->
+<!--            android:id="@+id/saveConfigBtn"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="@dimen/main_btn_height"-->
+<!--            android:layout_margin="@dimen/main_btn_margin"-->
+<!--            android:text="@string/main_save_config_btn"-->
+<!--            android:textSize="@dimen/text_size"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/columnContainer" />-->
 
         <Button
             android:id="@+id/startStopButton"
