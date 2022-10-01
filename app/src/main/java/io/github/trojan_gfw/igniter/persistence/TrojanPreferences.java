@@ -18,13 +18,13 @@ public class TrojanPreferences {
     public static final String KEY_ENABLE_AUTO_START = "enable_auto_start";
     public static final String KEY_SELECTED_INDEX = "selected_index";
 
-    boolean enableIPV6 = false;
-    boolean enableClash = false;
-    boolean everStarted = false;
-    boolean enableLan = false;
-    boolean enableAutoStart = false;
+    boolean enableIPV6;
+    boolean enableClash;
+    boolean everStarted;
+    boolean enableLan;
+    boolean enableAutoStart;
 
-    int selectedIndex = 0;
+    int selectedIndex;
 
 
     Context context;
@@ -45,7 +45,7 @@ public class TrojanPreferences {
         this.enableIPV6 = enableIPV6;
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(KEY_ENABLE_IPV6, enableIPV6);
-        editor.commit();
+        editor.apply();
     }
 
     public boolean getEnableIPV6() {
@@ -53,7 +53,7 @@ public class TrojanPreferences {
     }
 
     private void setString(String key, String value) {
-        sharedPreferences.edit().putString(key, value).commit();
+        sharedPreferences.edit().putString(key, value).apply();
     }
 
     private String getString(String key, String value) {
@@ -61,7 +61,7 @@ public class TrojanPreferences {
     }
 
     private void setBoolean(String key, boolean value) {
-        sharedPreferences.edit().putBoolean(key, value).commit();
+        sharedPreferences.edit().putBoolean(key, value).apply();
     }
 
     private boolean getBoolean(String key, boolean fallback) {
@@ -69,11 +69,11 @@ public class TrojanPreferences {
     }
 
     private void setInt(String key, int value) {
-        sharedPreferences.edit().putInt(key, value).commit();
+        sharedPreferences.edit().putInt(key, value).apply();
     }
 
     private int getInt(String key, int fallback) {
-        return sharedPreferences.getInt(key, 0);
+        return sharedPreferences.getInt(key, fallback);
     }
 
     public boolean isEverStarted() {

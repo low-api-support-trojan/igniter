@@ -1,5 +1,6 @@
 package io.github.trojan_gfw.igniter;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -8,7 +9,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.net.VpnService;
 import android.os.Build;
 import android.os.IBinder;
@@ -23,18 +23,12 @@ import androidx.core.app.NotificationCompat;
 import java.util.Collections;
 import java.util.Set;
 
-import clash.Clash;
-import freeport.Freeport;
 import io.github.trojan_gfw.igniter.connection.TestConnection;
 import io.github.trojan_gfw.igniter.exempt.data.ExemptAppDataManager;
 import io.github.trojan_gfw.igniter.exempt.data.ExemptAppDataSource;
-import io.github.trojan_gfw.igniter.persistence.ClashConfig;
 import io.github.trojan_gfw.igniter.persistence.NetWorkConfig;
-import io.github.trojan_gfw.igniter.persistence.Storage;
-import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanService;
 import io.github.trojan_gfw.igniter.proxy.aidl.ITrojanServiceCallback;
-import tun2socks.Tun2socks;
 
 public class ProxyService extends VpnService implements TestConnection.OnResultListener {
     private static final String TAG = "ProxyService";
@@ -44,7 +38,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
     public static final int STARTED = 1;
     public static final int STOPPING = 2;
     public static final int STOPPED = 3;
-    public static final int IGNITER_STATUS_NOTIFY_MSG_ID = 114514;
+    public static final int PROXY_SERVICE_STATUS_NOTIFY_MSG_ID = 114514;
     public long tun2socksPort;
     public IgniterApplication app;
 
@@ -204,7 +198,9 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
     private void startForegroundNotification(String channelId) {
         Intent openMainActivityIntent = new Intent(this, MainActivity.class);
         openMainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingOpenMainActivityIntent = PendingIntent.getActivity(this, 0, openMainActivityIntent, 0);
+        @SuppressLint("UnspecifiedImmutableFlag") PendingIntent pendingOpenMainActivityIntent = PendingIntent.getActivity(this,
+                0, openMainActivityIntent,
+                0);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
@@ -223,7 +219,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         // it's required to create a notification channel before startForeground on SDK >= Android O
         createNotificationChannel(channelId);
         Log.i(TAG, "start foreground notification");
-        startForeground(IGNITER_STATUS_NOTIFY_MSG_ID, builder.build());
+        startForeground(PROXY_SERVICE_STATUS_NOTIFY_MSG_ID, builder.build());
     }
 
     @Override
@@ -231,7 +227,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         Log.i(TAG, "onStartCommand");
         // In order to keep the service long-lived, starting the service by Context.startForegroundService()
         // might be the easiest way. According to the official indication, a service which is started
-        // by C     ontext.startForegroundService() must call Service.startForeground() within 5 seconds.
+        // by C     onText.startForegroundService() must call Service.startForeground() within 5 seconds.
         // Otherwise the process will be shutdown and user will get an ANR notification.
         startForegroundNotification(getString(R.string.notification_channel_id));
         setState(STARTING);
@@ -256,7 +252,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
 
         Intent openMainActivityIntent = new Intent(this, MainActivity.class);
         openMainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingOpenMainActivityIntent = PendingIntent.getActivity(this, 0, openMainActivityIntent, 0);
+        @SuppressLint("UnspecifiedImmutableFlag") PendingIntent pendingOpenMainActivityIntent = PendingIntent.getActivity(this, 0, openMainActivityIntent, 0);
         final String channelId = getString(R.string.notification_channel_id);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
@@ -269,7 +265,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
                 .setContentIntent(pendingOpenMainActivityIntent)
                 .setAutoCancel(false)
                 .setOngoing(true);
-        startForeground(IGNITER_STATUS_NOTIFY_MSG_ID, builder.build());
+        startForeground(PROXY_SERVICE_STATUS_NOTIFY_MSG_ID, builder.build());
         return START_STICKY;
     }
 
@@ -303,7 +299,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
 
     public void stop() {
         shutdown();
-        // this is essential for gomobile aar
+        // this is essential for goMobile aar
         android.os.Process.killProcess(android.os.Process.myPid());
     }
 }

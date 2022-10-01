@@ -1,7 +1,5 @@
 package io.github.trojan_gfw.igniter.servers.activity;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,10 +14,6 @@ import io.github.trojan_gfw.igniter.servers.presenter.ServerListPresenter;
 
 public class ServerListActivity extends AppCompatActivity {
     public static final String KEY_TROJAN_CONFIG = "trojan_config";
-
-    public static Intent create(Context context) {
-        return new Intent(context, ServerListActivity.class);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

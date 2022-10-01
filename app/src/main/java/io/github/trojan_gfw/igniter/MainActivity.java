@@ -8,8 +8,6 @@ import android.content.Intent;
 import android.net.VpnService;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -23,6 +21,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -50,12 +52,64 @@ import io.github.trojan_gfw.igniter.servers.data.ServerListDataSource;
 public class MainActivity extends AppCompatActivity implements TrojanConnection.Callback {
     private static final String TAG = "MainActivity";
     private static final int READ_WRITE_EXT_STORAGE_PERMISSION_REQUEST = 514;
-    private static final int VPN_REQUEST_CODE = 233;
-    private static final int SERVER_LIST_CHOOSE_REQUEST_CODE = 1024;
-    private static final int EXEMPT_APP_CONFIGURE_REQUEST_CODE = 2077;
     private static final String CONNECTION_TEST_URL = "https://www.google.com";
 
     IgniterApplication app;
+
+    // Launchers
+    ActivityResultLauncher<Intent> vpnLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        app.startProxyService();
+                    }
+                }
+            });
+
+    ActivityResultLauncher<Intent> serverListLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        trojanURLText.setText("");
+                        final TrojanConfig temp = data.getParcelableExtra(ServerListActivity.KEY_TROJAN_CONFIG);
+                        if (temp != null) {
+                            temp.setCaCertPath(app.storage.getCaCertPath());
+                            app.trojanConfig.fromJSON(temp.toJSON());
+                            runOnUiThread(() -> {
+                                remoteAddressText.setText(app.trojanConfig.getRemoteAddr());
+                                remotePortText.setText(String.valueOf(app.trojanConfig.getRemotePort()));
+                                if (app.trojanPreferences.getEnableClash()) {
+                                    localOrClashPortText.setText(String.valueOf(app.clashConfig.getPort()));
+                                } else {
+                                    localOrClashPortText.setText(String.valueOf(app.trojanConfig.getLocalPort()));
+                                }
+                                passwordText.setText(app.trojanConfig.getPassword());
+                            });
+                            trojanURLText.setText(TrojanConfig.toURIString(app.trojanConfig));
+                            ipv6Switch.setChecked(app.trojanPreferences.getEnableIPV6());
+                            verifySwitch.setChecked(app.trojanConfig.getVerifyCert());
+                        }
+                    }
+                }
+            });
+
+    ActivityResultLauncher<Intent> exemptAppLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        if (ProxyService.STARTED == proxyState) {
+                            Snackbar.make(rootViewGroup, R.string.main_restart_proxy_service_tip, Snackbar.LENGTH_LONG).show();
+                        }
+                    }
+                }
+            });
 
     private ViewGroup rootViewGroup;
     private EditText remoteAddressText;
@@ -125,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         }
     };
 
-    private TextViewListener passwordTextListener = new TextViewListener() {
+    private final TextViewListener passwordTextListener = new TextViewListener() {
         @Override
         protected void onTextChanged(String before, String old, String aNew, String after) {
             // update TextView
@@ -238,9 +292,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         });
 
         enableLanSwitch.setChecked(app.trojanPreferences.isEnableLan());
-        enableLanSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            app.trojanPreferences.setEnableLan(isChecked);
-        });
+        enableLanSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> app.trojanPreferences.setEnableLan(isChecked));
 
         enableAutoStartSwitch.setChecked(app.trojanPreferences.isEnableAutoStart());
         enableAutoStartSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -250,9 +302,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
 
         ipv6Switch.setOnCheckedChangeListener((buttonView, isChecked) -> app.trojanPreferences.setEnableIPV6(isChecked));
 
-        verifySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            app.trojanConfig.setVerifyCert(isChecked);
-        });
+        verifySwitch.setOnCheckedChangeListener((buttonView, isChecked) -> app.trojanConfig.setVerifyCert(isChecked));
 
 
         initURIEditor();
@@ -272,7 +322,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                 // start ProxyService
                 Intent i = VpnService.prepare(getApplicationContext());
                 if (i != null) {
-                    startActivityForResult(i, VPN_REQUEST_CODE);
+                    vpnLauncher.launch(i);
                 } else {
                     app.startProxyService();
                 }
@@ -402,21 +452,6 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         }
     }
 
-    /**
-     * Show develop info in Logcat by invoking {@link ITrojanService#showDevelopInfoInLogcat}. Since {@link ITrojanService}
-     * is from remote process, a {@link RemoteException} might be thrown.
-     */
-    private void showDevelopInfoInLogcat() {
-        ITrojanService service = trojanService;
-        if (service != null) {
-            try {
-                service.showDevelopInfoInLogcat();
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     private void clearEditTextFocus() {
         remoteAddressText.clearFocus();
         remotePortText.clearFocus();
@@ -429,38 +464,6 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         runOnUiThread(() -> Toast.makeText(getApplicationContext(),
                 R.string.main_save_success,
                 Toast.LENGTH_SHORT).show());
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (SERVER_LIST_CHOOSE_REQUEST_CODE == requestCode && resultCode == Activity.RESULT_OK && data != null) {
-            trojanURLText.setText("");
-            final TrojanConfig temp = data.getParcelableExtra(ServerListActivity.KEY_TROJAN_CONFIG);
-            if (temp != null) {
-                temp.setCaCertPath(app.storage.getCaCertPath());
-                app.trojanConfig.fromJSON(temp.toJSON());
-                runOnUiThread(() -> {
-                    remoteAddressText.setText(app.trojanConfig.getRemoteAddr());
-                    remotePortText.setText(String.valueOf(app.trojanConfig.getRemotePort()));
-                    if (app.trojanPreferences.getEnableClash()) {
-                        localOrClashPortText.setText(String.valueOf(app.clashConfig.getPort()));
-                    } else {
-                        localOrClashPortText.setText(String.valueOf(app.trojanConfig.getLocalPort()));
-                    }
-                    passwordText.setText(app.trojanConfig.getPassword());
-                });
-                trojanURLText.setText(TrojanConfig.toURIString(app.trojanConfig));
-                ipv6Switch.setChecked(app.trojanPreferences.getEnableIPV6());
-                verifySwitch.setChecked(app.trojanConfig.getVerifyCert());
-            }
-        } else if (EXEMPT_APP_CONFIGURE_REQUEST_CODE == requestCode && Activity.RESULT_OK == resultCode) {
-            if (ProxyService.STARTED == proxyState) {
-                Snackbar.make(rootViewGroup, R.string.main_restart_proxy_service_tip, Snackbar.LENGTH_LONG).show();
-            }
-        } else if (VPN_REQUEST_CODE == requestCode && RESULT_OK == resultCode) {
-            app.startProxyService();
-        }
     }
 
     @SuppressLint("RestrictedApi")
@@ -477,25 +480,24 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         return true;
     }
 
-    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Bind menu items to their relative actions
         switch (item.getItemId()) {
-            case R.id.action_test_connection:
+            case (R.id.action_test_connection):
                 testConnection();
                 return true;
-            case R.id.menu_clash_editor:
+            case (R.id.menu_clash_editor):
                 Intent intent = new Intent(this, ClashFileEditorActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.action_view_server_list:
+            case (R.id.action_view_server_list):
                 clearEditTextFocus();
-                startActivityForResult(ServerListActivity.create(MainActivity.this), SERVER_LIST_CHOOSE_REQUEST_CODE);
+                serverListLauncher.launch(new Intent(this, ServerListActivity.class));
                 return true;
-            case R.id.action_exempt_app:
+            case (R.id.action_exempt_app):
                 if (app.storage.isExternalWritable()) {
-                    startActivityForResult(ExemptAppActivity.create(this), EXEMPT_APP_CONFIGURE_REQUEST_CODE);
+                    exemptAppLauncher.launch(new Intent(this, ExemptAppActivity.class));
                 } else {
                     if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,

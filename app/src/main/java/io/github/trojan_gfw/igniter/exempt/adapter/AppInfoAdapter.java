@@ -70,8 +70,8 @@ public class AppInfoAdapter extends RecyclerView.Adapter<AppInfoAdapter.ViewHold
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements CompoundButton.OnCheckedChangeListener {
-        private TextView mNameTv;
-        private Switch mExemptSwitch;
+        private final TextView mNameTv;
+        private final Switch mExemptSwitch;
         private AppInfo mCurrentInfo;
 
         ViewHolder(@NonNull View itemView) {

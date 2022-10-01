@@ -20,7 +20,7 @@ public class ServerList {
     public static final String CONFIG_LIST_TAG = "TrojanConfigList";
     public String filename;
     IgniterApplication app;
-    int currentIndex = 0;
+    int currentIndex;
 
     public ServerList(IgniterApplication app) {
         this.app = app;
@@ -35,15 +35,13 @@ public class ServerList {
 
     public TrojanConfig getDefaultConfig() {
         List<TrojanConfig> list = ServerList.read(filename);
-        if (list != null && list.size() > currentIndex) {
-            return list.get(currentIndex);
-        } else {
+        if (list == null || list.size() <= currentIndex) {
             List<TrojanConfig> newList = new ArrayList<>();
             newList.add(app.trojanConfig);
             write(newList, filename);
             currentIndex = 0;
-            return list.get(currentIndex);
         }
+        return list.get(currentIndex);
     }
     public static void write(List<TrojanConfig> configList, String filename) {
         try {

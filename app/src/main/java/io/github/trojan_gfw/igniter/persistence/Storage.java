@@ -59,8 +59,7 @@ public class Storage {
             byte[] content = new byte[length];
             int readBytes = fis.read(content);
             assert readBytes == length;
-            String result = new String(content);
-            return result;
+            return new String(content);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -130,8 +129,8 @@ public class Storage {
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
         };
-        for (int i = 0; i < permissions.length; i++) {
-            if (ContextCompat.checkSelfPermission(context, permissions[i]) !=
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(context, permission) !=
                     PackageManager.PERMISSION_GRANTED) {
                 return false;
             }

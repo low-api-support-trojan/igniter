@@ -20,10 +20,6 @@ public class ExemptAppActivity extends AppCompatActivity {
     private ExemptAppContract.Presenter mPresenter;
     Storage storage;
 
-    public static Intent create(Context context) {
-        return new Intent(context, ExemptAppActivity.class);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
