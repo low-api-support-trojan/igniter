@@ -1,4 +1,4 @@
-package io.github.trojan_gfw.igniter.qrcode;
+package io.github.trojan_gfw.igniter.tile.qrcode;
 
 import android.content.Context;
 import android.content.Intent;

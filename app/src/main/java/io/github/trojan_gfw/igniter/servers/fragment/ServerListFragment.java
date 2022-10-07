@@ -34,7 +34,7 @@ import java.util.List;
 import io.github.trojan_gfw.igniter.R;
 import io.github.trojan_gfw.igniter.persistence.TrojanConfig;
 import io.github.trojan_gfw.igniter.common.app.BaseFragment;
-import io.github.trojan_gfw.igniter.qrcode.ScanQRCodeActivity;
+import io.github.trojan_gfw.igniter.tile.qrcode.ScanQRCodeActivity;
 import io.github.trojan_gfw.igniter.servers.activity.ServerListActivity;
 import io.github.trojan_gfw.igniter.servers.contract.ServerListContract;
 

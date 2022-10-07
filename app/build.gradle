@@ -49,6 +49,7 @@ android {
         unitTests.returnDefaultValues = true
         unitTests.includeAndroidResources = true
     }
+    namespace 'io.github.trojan_gfw.igniter'
 }
 
 dependencies {

@@ -4,7 +4,7 @@ import android.content.pm.PackageManager;
 import android.net.VpnService;
 import android.os.ParcelFileDescriptor;
 
-import java.net.ConnectException;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Set;
@@ -17,12 +17,13 @@ import tun2socks.Tun2socks;
 import tun2socks.Tun2socksStartOptions;
 
 public class NetWorkConfig {
-    public static final String LOCAL_HOST = "127.0.0.1";
+//    public static final String LOCAL_HOST = "127.0.0.1";
     private static final int VPN_MTU = 1500;
     private static final String PRIVATE_VLAN4_CLIENT = "172.19.0.1";
     private static final String PRIVATE_VLAN6_CLIENT = "fdfe:dcba:9876::1";
     private static final String TUN2SOCKS5_SERVER_HOST = "127.0.0.1";
     private static final String FAKE_IP_RANGE = "198.18.0.1/16";
+    private static final String TUNNEL_TO_SOCKS_LOG_LEVEL = "info";
 
     private static final String[] DNS_SERVERS = {
             "8.8.8.8",
@@ -43,12 +44,8 @@ public class NetWorkConfig {
             socket.close();
             return true;
         }
-        catch(ConnectException ce){
+        catch(IOException ce){
             ce.printStackTrace();
-            return false;
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
             return false;
         }
     }
@@ -60,7 +57,7 @@ public class NetWorkConfig {
         tun2socksStartOptions.setEnableIPv6(enableIPV6);
         tun2socksStartOptions.setMTU(VPN_MTU);
 
-        Tun2socks.setLoglevel("info");
+        Tun2socks.setLoglevel(TUNNEL_TO_SOCKS_LOG_LEVEL);
         if (enableClash) {
             tun2socksStartOptions.setFakeIPRange(FAKE_IP_RANGE);
         } else {
