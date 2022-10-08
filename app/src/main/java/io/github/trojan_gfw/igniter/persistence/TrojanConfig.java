@@ -142,7 +142,7 @@ public class TrojanConfig implements Parcelable {
             json.put(KEY_REMOTE_ADDR, this.remoteAddr);
             json.put(KEY_REMOTE_PORT, this.remotePort);
             json.put(KEY_PASSWORD, new JSONArray().put(this.password));
-            JSONObject ssl = json.getJSONObject(KEY_SSL);
+            JSONObject ssl = new JSONObject();
             ssl.put(KEY_VERIFY_CERT, this.verifyCert);
             ssl.put(KEY_CA_CERT_PATH, this.caCertPath);
             ssl.put(KEY_CIPHER_LIST, this.cipherList);
