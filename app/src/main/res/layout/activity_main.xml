@@ -43,7 +43,7 @@
                 tools:ignore="TouchTargetSizeCheck,TouchTargetSizeCheck" />
 
             <ImageButton
-                android:id="@+id/imageButton_play"
+                android:id="@+id/imageButton_start"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -251,17 +251,17 @@
 <!--            app:layout_constraintStart_toStartOf="parent"-->
 <!--            app:layout_constraintTop_toBottomOf="@+id/columnContainer" />-->
 
-        <Button
-            android:id="@+id/startStopButton"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/main_btn_height"
-            android:layout_margin="@dimen/main_btn_margin"
-            android:text="@string/button_service__start"
-            android:textSize="@dimen/text_size"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/saveConfigBtn" />
+<!--        <Button-->
+<!--            android:id="@+id/startStopButton"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="@dimen/main_btn_height"-->
+<!--            android:layout_margin="@dimen/main_btn_margin"-->
+<!--            android:text="@string/button_service__start"-->
+<!--            android:textSize="@dimen/text_size"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintHorizontal_bias="1.0"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/saveConfigBtn" />-->
 
     </LinearLayout>
 </ScrollView>

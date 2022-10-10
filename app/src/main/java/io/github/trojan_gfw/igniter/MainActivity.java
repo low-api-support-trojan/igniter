@@ -18,7 +18,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -123,7 +122,9 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
     private SwitchCompat enableLanSwitch;
     private SwitchCompat enableAutoStartSwitch;
     private TextView clashLink;
-    private Button startStopButton;
+//    private Button startStopButton;
+    private ImageButton startButton;
+    private ImageButton stopButton;
     private EditText trojanURLText;
     private @ProxyService.ProxyState
     int proxyState = ProxyService.STATE_NONE;
@@ -192,26 +193,34 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         switch (state) {
             case ProxyService.STARTING: {
                 inputEnabled = false;
-                startStopButton.setText(R.string.button_service__starting);
-                startStopButton.setEnabled(false);
+                startButton.setEnabled(false);
+                stopButton.setEnabled(true);
+//                startStopButton.setText(R.string.button_service__starting);
+//                startStopButton.setEnabled(false);
                 break;
             }
             case ProxyService.STARTED: {
                 inputEnabled = false;
-                startStopButton.setText(R.string.button_service__stop);
-                startStopButton.setEnabled(true);
+                startButton.setEnabled(false);
+                stopButton.setEnabled(true);
+//                startStopButton.setText(R.string.button_service__stop);
+//                startStopButton.setEnabled(true);
                 break;
             }
             case ProxyService.STOPPING: {
                 inputEnabled = false;
-                startStopButton.setText(R.string.button_service__stopping);
-                startStopButton.setEnabled(false);
+                startButton.setEnabled(false);
+                stopButton.setEnabled(false);
+//                startStopButton.setText(R.string.button_service__stopping);
+//                startStopButton.setEnabled(false);
                 break;
             }
             default: {
                 inputEnabled = true;
-                startStopButton.setText(R.string.button_service__start);
-                startStopButton.setEnabled(true);
+                startButton.setEnabled(true);
+                stopButton.setEnabled(false);
+//                startStopButton.setText(R.string.button_service__start);
+//                startStopButton.setEnabled(true);
                 break;
             }
         }
@@ -253,7 +262,10 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         enableAutoStartSwitch = findViewById(R.id.switch_enable_auto_start);
         clashLink = findViewById(R.id.clashLink);
         clashLink.setMovementMethod(LinkMovementMethod.getInstance());
-        startStopButton = findViewById(R.id.startStopButton);
+//        startStopButton = findViewById(R.id.startStopButton);
+
+        startButton = findViewById(R.id.imageButton_start);
+        stopButton = findViewById(R.id.imageButton_stop);
 
         remoteAddressText.addTextChangedListener(remoteAddressTextListener);
 
@@ -301,7 +313,8 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
 
 
         initURIEditor();
-        startStopButton.setOnClickListener(v -> {
+
+        startButton.setOnClickListener(v -> {
             if (!app.trojanConfig.isValidRunningConfig()) {
                 Toast.makeText(MainActivity.this,
                         R.string.invalid_configuration,
@@ -310,11 +323,28 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
             }
             if (proxyState == ProxyService.STATE_NONE || proxyState == ProxyService.STOPPED) {
                 startVPN();
-            } else if (proxyState == ProxyService.STARTED) {
+            }
+        });
+        stopButton.setOnClickListener(v -> {
+            if (proxyState == ProxyService.STARTED) {
                 // stop ProxyService
                 app.stopProxyService();
             }
         });
+//        startStopButton.setOnClickListener(v -> {
+//            if (!app.trojanConfig.isValidRunningConfig()) {
+//                Toast.makeText(MainActivity.this,
+//                        R.string.invalid_configuration,
+//                        Toast.LENGTH_LONG).show();
+//                return;
+//            }
+//            if (proxyState == ProxyService.STATE_NONE || proxyState == ProxyService.STOPPED) {
+//                startVPN();
+//            } else if (proxyState == ProxyService.STARTED) {
+//                // stop ProxyService
+//                app.stopProxyService();
+//            }
+//        });
         saveServerIb.setOnClickListener(v -> {
             if (!app.trojanConfig.isValidRunningConfig()) {
                 Toast.makeText(MainActivity.this, R.string.invalid_configuration, Toast.LENGTH_SHORT).show();
@@ -344,7 +374,8 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         boolean isAutoStart = app.trojanPreferences.isEnableAutoStart();
 
         if (isAutoStart) {
-            startStopButton.performClick();
+//            startStopButton.performClick();
+            startButton.performClick();
         }
     }
 
