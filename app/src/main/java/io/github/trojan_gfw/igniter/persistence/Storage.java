@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.os.Environment;
 import android.util.Log;
 
 import androidx.core.content.ContextCompat;
@@ -15,7 +14,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 import io.github.trojan_gfw.igniter.R;
@@ -94,7 +92,7 @@ public class Storage {
             byte[] bytes = readRawBytes(resId);
             write(filename, bytes);
         } catch (Exception e) {
-            Log.e(this.TAG, "Error creating file: " + filename);
+            Log.e(TAG, "Error creating file: " + filename);
             e.printStackTrace();
         }
     }
@@ -215,9 +213,9 @@ public class Storage {
 
     public void check(String filename, int resId) {
         File file = new File(filename);
-        Log.v(this.TAG, "Checking file: " + filename);
+        Log.v(TAG, "Checking file: " + filename);
         if (!file.exists()) {
-            Log.v(this.TAG, "File: " + filename + " not found! Resetting...");
+            Log.v(TAG, "File: " + filename + " not found! Resetting...");
             reset(filename, resId);
         }
     }
