@@ -15,31 +15,29 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import io.github.trojan_gfw.igniter.R;
 
 public class Storage {
+    public static final String TAG = "STORAGE";
     Context context;
     public static final int CACHE = 0;
     public static final int FILES = 1;
-    public static final int EXTERNAL = 2;
 
-    public File[] dirs = new File[3];
+    public File[] dirs = new File[2];
 
     public Storage(Context context) {
         this.context = context;
         dirs[CACHE] = context.getCacheDir();
         dirs[FILES] = context.getFilesDir();
-        dirs[EXTERNAL] = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
-        dirs[EXTERNAL] = new File(dirs[EXTERNAL], context.getString(R.string.app_name));
     }
 
     public String getPath(int type, String filename) {
         switch (type) {
             case CACHE:
             case FILES:
-            case EXTERNAL:
                 return new File(dirs[type], filename).getPath();
             default:
                 return null;
@@ -96,6 +94,7 @@ public class Storage {
             byte[] bytes = readRawBytes(resId);
             write(filename, bytes);
         } catch (Exception e) {
+            Log.e(this.TAG, "Error creating file: " + filename);
             e.printStackTrace();
         }
     }
@@ -117,11 +116,11 @@ public class Storage {
     }
 
     public String getExemptedAppListPath() {
-        return getPath(EXTERNAL, context.getString(R.string.exempted_app_list_config));
+        return getPath(FILES, context.getString(R.string.exempted_app_list_config));
     }
 
     public String getCaCertPath() {
-        return getPath(EXTERNAL, context.getString(R.string.ca_cert_config));
+        return getPath(FILES, context.getString(R.string.ca_cert_config));
     }
 
     public boolean isExternalWritable() {
@@ -216,7 +215,9 @@ public class Storage {
 
     public void check(String filename, int resId) {
         File file = new File(filename);
+        Log.v(this.TAG, "Checking file: " + filename);
         if (!file.exists()) {
+            Log.v(this.TAG, "File: " + filename + " not found! Resetting...");
             reset(filename, resId);
         }
     }
