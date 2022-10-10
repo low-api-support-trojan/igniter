@@ -30,27 +30,39 @@
             android:layout_marginEnd="16dp"
             android:gravity="center"
             android:orientation="horizontal">
+
             <ImageButton
                 android:id="@+id/imageButton_save"
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:layout_marginStart="0dp"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="@string/save"
                 app:srcCompat="@drawable/ic_action_save"
-                android:contentDescription="@string/save" />
+                tools:ignore="TouchTargetSizeCheck,TouchTargetSizeCheck" />
+
             <ImageButton
                 android:id="@+id/imageButton_play"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="@string/play"
                 app:srcCompat="@drawable/ic_action_play"
-                android:contentDescription="@string/play" />
+                tools:ignore="TouchTargetSizeCheck" />
+
             <ImageButton
                 android:id="@+id/imageButton_stop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="0dp"
+                android:contentDescription="@string/stop"
                 app:srcCompat="@drawable/ic_action_stop"
-                android:contentDescription="@string/stop" />
+                tools:ignore="TouchTargetSizeCheck,ImageContrastCheck" />
         </LinearLayout>
 
         <EditText
@@ -88,7 +100,8 @@
                 android:inputType="number"
                 android:text="@string/default_port"
                 android:textSize="20sp"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:autofillHints="" />
 
             <EditText
                 android:id="@+id/localOrClashPortText"
@@ -100,7 +113,8 @@
                 android:maxLength="5"
                 android:text="@string/default_local_or_clash_port"
                 android:textSize="20sp"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:autofillHints="" />
         </LinearLayout>
 
         <EditText
@@ -111,9 +125,11 @@
             android:layout_marginTop="12dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="12dp"
+            android:autofillHints=""
             android:ems="10"
             android:hint="@string/password"
             android:inputType="textPassword"
+            android:textColorHint="#78909C"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -125,9 +141,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
+            android:autofillHints=""
             android:ems="10"
             android:hint="@string/trojan_url"
             android:inputType="textUri"
+            android:textColorHint="#78909C"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -191,6 +209,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:checked="true"
+                android:layout_weight="0"
                 android:linksClickable="true"
                 tools:ignore="TouchTargetSizeCheck" />
         </LinearLayout>
