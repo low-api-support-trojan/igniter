@@ -32,6 +32,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -116,16 +117,11 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
     private EditText remotePortText;
     private EditText localOrClashPortText;
     private EditText passwordText;
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
-    private Switch ipv6Switch;
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
-    private Switch verifySwitch;
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
-    private Switch clashSwitch;
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
-    private Switch enableLanSwitch;
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
-    private Switch enableAutoStartSwitch;
+    private SwitchCompat ipv6Switch;
+    private SwitchCompat verifySwitch;
+    private SwitchCompat clashSwitch;
+    private SwitchCompat enableLanSwitch;
+    private SwitchCompat enableAutoStartSwitch;
     private TextView clashLink;
     private Button startStopButton;
     private EditText trojanURLText;
