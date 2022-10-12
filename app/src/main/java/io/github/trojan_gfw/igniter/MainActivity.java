@@ -15,7 +15,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -190,12 +189,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         proxyState = state;
         boolean inputEnabled;
         switch (state) {
-            case ProxyService.STARTING: {
-                inputEnabled = false;
-                startButton.setEnabled(false);
-                stopButton.setEnabled(true);
-                break;
-            }
+            case ProxyService.STARTING:
             case ProxyService.STARTED: {
                 inputEnabled = false;
                 startButton.setEnabled(false);

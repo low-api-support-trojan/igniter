@@ -44,28 +44,18 @@ public class TrojanConnection implements ServiceConnection, Binder.DeathRecipien
      * @see ProxyService
      * @see ITrojanService
      */
-    private ITrojanServiceCallback mTrojanServiceCallback = new ITrojanServiceCallback.Stub() {
+    private final ITrojanServiceCallback mTrojanServiceCallback = new ITrojanServiceCallback.Stub() {
         @Override
-        public void onStateChanged(final int state, final String msg) throws RemoteException {
+        public void onStateChanged(final int state, final String msg) {
             if (mCallback != null) {
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mCallback.onStateChanged(state, msg);
-                    }
-                });
+                mHandler.post(() -> mCallback.onStateChanged(state, msg));
             }
         }
 
         @Override
-        public void onTestResult(final String testUrl, final boolean connected, final long delay, final String error) throws RemoteException {
+        public void onTestResult(final String testUrl, final boolean connected, final long delay, final String error) {
             if (mCallback != null) {
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mCallback.onTestResult(testUrl, connected, delay, error);
-                    }
-                });
+                mHandler.post(() -> mCallback.onTestResult(testUrl, connected, delay, error));
             }
         }
     };
@@ -181,12 +171,7 @@ public class TrojanConnection implements ServiceConnection, Binder.DeathRecipien
         mTrojanService = null;
         mServiceCallbackRegistered = false;
         if (mCallback != null) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    mCallback.onBinderDied();
-                }
-            });
+            mHandler.post(() -> mCallback.onBinderDied());
         }
     }
 }
