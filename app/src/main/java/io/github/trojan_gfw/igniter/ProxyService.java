@@ -231,6 +231,9 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "onStartCommand");
+        if (state == STARTED || state == STARTING) {
+            return START_NOT_STICKY;
+        }
         // In order to keep the service long-lived, starting the service by Context.startForegroundService()
         // might be the easiest way. According to the official indication, a service which is started
         // by C     onText.startForegroundService() must call Service.startForeground() within 5 seconds.

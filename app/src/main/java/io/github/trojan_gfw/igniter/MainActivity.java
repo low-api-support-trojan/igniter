@@ -119,10 +119,8 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
     private SwitchCompat verifySwitch;
     private SwitchCompat clashSwitch;
     private SwitchCompat enableLanSwitch;
-    private SwitchCompat enableAutoStartSwitch;
     private TextView clashLink;
     private ImageButton startButton;
-    private ImageButton stopButton;
     private EditText trojanURLText;
     private @ProxyService.ProxyState
     int proxyState = ProxyService.STATE_NONE;
@@ -190,22 +188,15 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         boolean inputEnabled;
         switch (state) {
             case ProxyService.STARTING:
-            case ProxyService.STARTED: {
-                inputEnabled = false;
-                startButton.setEnabled(false);
-                stopButton.setEnabled(true);
-                break;
-            }
+            case ProxyService.STARTED:
             case ProxyService.STOPPING: {
                 inputEnabled = false;
                 startButton.setEnabled(false);
-                stopButton.setEnabled(false);
                 break;
             }
             default: {
                 inputEnabled = true;
                 startButton.setEnabled(true);
-                stopButton.setEnabled(false);
                 break;
             }
         }
@@ -218,7 +209,6 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         verifySwitch.setEnabled(inputEnabled);
         clashSwitch.setEnabled(inputEnabled);
         enableLanSwitch.setEnabled(inputEnabled);
-        enableAutoStartSwitch.setEnabled(inputEnabled);
         clashLink.setEnabled(inputEnabled);
     }
 
@@ -244,12 +234,12 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         verifySwitch = findViewById(R.id.verifySwitch);
         clashSwitch = findViewById(R.id.clashSwitch);
         enableLanSwitch = findViewById(R.id.switch_enable_lan);
-        enableAutoStartSwitch = findViewById(R.id.switch_enable_auto_start);
+        SwitchCompat enableAutoStartSwitch = findViewById(R.id.switch_enable_auto_start);
         clashLink = findViewById(R.id.clashLink);
         clashLink.setMovementMethod(LinkMovementMethod.getInstance());
 
         startButton = findViewById(R.id.imageButton_start);
-        stopButton = findViewById(R.id.imageButton_stop);
+        ImageButton stopButton = findViewById(R.id.imageButton_stop);
 
         remoteAddressText.addTextChangedListener(remoteAddressTextListener);
 
@@ -306,6 +296,10 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                 return;
             }
             if (proxyState == ProxyService.STATE_NONE || proxyState == ProxyService.STOPPED) {
+                TrojanConfig.write(
+                        app.trojanConfig,
+                        app.storage.getTrojanConfigPath()
+                );
                 startVPN();
             }
         });
@@ -341,20 +335,9 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                 .shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             requestReadWriteExternalStoragePermission();
         }
-
-        boolean isAutoStart = app.trojanPreferences.isEnableAutoStart();
-
-        if (isAutoStart) {
-            startButton.performClick();
-        }
     }
 
     public void startVPN() {
-        TrojanConfig.write(
-                app.trojanConfig,
-                app.storage.getTrojanConfigPath()
-        );
-//        Storage.print(app.storage.getTrojanConfigPath(), TrojanConfig.SINGLE_CONFIG_TAG);
         // start ProxyService
         Intent i = VpnService.prepare(getApplicationContext());
         if (i != null) {
@@ -528,6 +511,26 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         ipv6Switch.setChecked(app.trojanPreferences.getEnableIPV6());
         verifySwitch.setChecked(trojanConfig.getVerifyCert());
         remoteAddressText.setSelection(remoteAddressText.length());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        boolean isAutoStart = app.trojanPreferences.isEnableAutoStart();
+        if (isAutoStart) {
+            Log.v("PROXY_STATE", "ProxyState = " + proxyState);
+            switch (proxyState) {
+                case ProxyService.STARTING:
+                case ProxyService.STARTED:
+                case ProxyService.STOPPING:
+                    break;
+                case ProxyService.STATE_NONE:
+                case ProxyService.STOPPED:
+                default:
+                    startButton.performClick();
+                    break;
+            }
+        }
     }
 
     @Override
