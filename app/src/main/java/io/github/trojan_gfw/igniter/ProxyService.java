@@ -224,7 +224,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
 
         // it's required to create a notification channel before startForeground on SDK >= Android O
         createNotificationChannel(channelId);
-        Log.i(TAG, "start foreground notification");
+        Log.i(TAG, "Start foreground notification");
         startForeground(PROXY_SERVICE_STATUS_NOTIFY_MSG_ID, builder.build());
     }
 
@@ -265,7 +265,7 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
         final String channelId = getString(R.string.notification_channel_id);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("Igniter is running")
+                .setContentTitle(getString(R.string.service_is_running))
                 .setContentText(statusStr)
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText(statusStr))

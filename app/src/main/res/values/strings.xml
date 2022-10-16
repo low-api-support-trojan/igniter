@@ -79,4 +79,5 @@
     <string name="exempt_app_exit_confirm">Are you sure to exit without save?</string>
     <string name="exempt_app_loading_tip">Loading…</string>
     <string name="exempt_app_exit_without_saving_confirm">Exit without saving exempt app list?</string>
+    <string name="service_is_running">Igniter is running</string>
 </resources>
