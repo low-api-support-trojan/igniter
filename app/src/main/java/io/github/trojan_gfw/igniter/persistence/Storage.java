@@ -43,11 +43,11 @@ public class Storage {
     }
 
     public static void print(String filename, String tag) {
-        String result = read(filename);
+        String result = new String(read(filename));
         Log.v(tag, result);
     }
 
-    public static String read(String filename) {
+    public static byte[] read(String filename) {
         try {
             File file = new File(filename);
             FileInputStream fis = new FileInputStream(file);
@@ -55,7 +55,7 @@ public class Storage {
             byte[] content = new byte[length];
             int readBytes = fis.read(content);
             assert readBytes == length;
-            return new String(content);
+            return content;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -75,7 +75,7 @@ public class Storage {
 
     public static JSONObject readJSON(String filename) {
         try {
-            String jsonStr = read(filename);
+            String jsonStr = new String(read(filename));
             return new JSONObject(jsonStr);
         } catch (JSONException e) {
             e.printStackTrace();

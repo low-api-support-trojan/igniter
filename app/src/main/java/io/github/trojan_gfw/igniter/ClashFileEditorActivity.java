@@ -20,7 +20,7 @@ public class ClashFileEditorActivity extends AppCompatActivity {
     }
 
     public void onLoad(View view) {
-        String clashConfigText = Storage.read(app.storage.getClashConfigPath());
+        String clashConfigText = new String(Storage.read(app.storage.getClashConfigPath()));
         clashConfigEditor.setText(clashConfigText);
     }
 
