@@ -18,23 +18,21 @@ import io.github.trojan_gfw.igniter.persistence.Storage;
 
 public class ExemptAppActivity extends AppCompatActivity {
     private ExemptAppContract.Presenter mPresenter;
-    Storage storage;
+    IgniterApplication app;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_exempt_app);
-
-        storage = ((IgniterApplication)getApplication()).storage;
+        app = (IgniterApplication)getApplication();
         FragmentManager fm = getSupportFragmentManager();
         ExemptAppFragment fragment = (ExemptAppFragment) fm.findFragmentByTag(ExemptAppFragment.TAG);
         if (fragment == null) {
             fragment = ExemptAppFragment.newInstance();
         }
         mPresenter = new ExemptAppPresenter(fragment,
-                new ExemptAppDataManager(getApplicationContext(),
-                storage.getExemptedAppListPath()));
+                new ExemptAppDataManager(app));
         fm.beginTransaction()
                 .replace(R.id.parent_fl, fragment, ExemptAppFragment.TAG)
                 .commitAllowingStateLoss();

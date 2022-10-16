@@ -20,6 +20,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.github.trojan_gfw.igniter.IgniterApplication;
+import io.github.trojan_gfw.igniter.persistence.Storage;
+
 /**
  * Implementation of {@link ExemptAppDataSource}. This class reads and writes exempted app list in a
  * file. The exempted app package names will be written line by line in the file.
@@ -34,64 +37,35 @@ import java.util.Set;
  */
 public class ExemptAppDataManager implements ExemptAppDataSource {
     private final PackageManager mPackageManager;
-    private final String mExemptAppListFilePath;
+    IgniterApplication app;
 
-    public ExemptAppDataManager(Context context, String exemptAppListFilePath) {
+    public ExemptAppDataManager(IgniterApplication app) {
         super();
-        mPackageManager = context.getPackageManager();
-        mExemptAppListFilePath = exemptAppListFilePath;
+        this.app = app;
+        mPackageManager = app.getPackageManager();
     }
 
     @Override
     public void saveExemptAppInfoSet(Set<String> exemptAppPackageNames) {
-        File file = new File(mExemptAppListFilePath);
-        if (file.exists()) {
-            file.delete();
-        }
         if (exemptAppPackageNames == null || exemptAppPackageNames.isEmpty()) {
             return;
         }
-        File dir = file.getParentFile();
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-        try (FileOutputStream fos = new FileOutputStream(file);
-             OutputStreamWriter osw = new OutputStreamWriter(fos);
-             BufferedWriter bw = new BufferedWriter(osw)) {
+        StringBuilder exemptApps = new StringBuilder();
             for (String name : exemptAppPackageNames) {
-                bw.write(name);
-                bw.write('\n');
+                exemptApps.append(name).append("\n");
             }
-            bw.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Storage.write(app.storage.getExemptedAppListPath(), exemptApps.toString().getBytes());
     }
 
     @NonNull
-    private Set<String> readExemptAppListConfig() {
-        File file = new File(mExemptAppListFilePath);
-        Set<String> exemptAppSet = new HashSet<>();
-        if (!file.exists()) {
-            return exemptAppSet;
-        }
-        try (FileInputStream fis = new FileInputStream(file);
-             InputStreamReader isr = new InputStreamReader(fis);
-             BufferedReader reader = new BufferedReader(isr)) {
-            String tmp = reader.readLine();
-            while (!TextUtils.isEmpty(tmp)) {
-                exemptAppSet.add(tmp);
-                tmp = reader.readLine();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return exemptAppSet;
+    private String[] readExemptAppListConfig() {
+        String exemptApps = new String(Storage.read(app.storage.getExemptedAppListPath()));
+        return exemptApps.split("\\r?\\n");
     }
 
     @Override
     public Set<String> loadExemptAppPackageNameSet() {
-        Set<String> exemptAppPackageNames = readExemptAppListConfig();
+        String[] exemptAppPackageNames = readExemptAppListConfig();
         // filter uninstalled apps
         List<ApplicationInfo> applicationInfoList = queryCurrentInstalledApps();
         Set<String> installedAppPackageNames = new HashSet<>();
