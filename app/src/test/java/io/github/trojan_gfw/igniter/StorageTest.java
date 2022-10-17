@@ -3,6 +3,8 @@ package io.github.trojan_gfw.igniter;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
 
+import static org.junit.Assert.assertTrue;
+
 import android.content.Context;
 
 import androidx.test.runner.AndroidJUnit4;
@@ -27,7 +29,6 @@ public class StorageTest {
     public void shouldInit() {
 
         Storage storage = new Storage(instrumentationContext);
-        storage.reset();
 
         String[] paths = {
                 storage.getCaCertPath(),
@@ -41,14 +42,12 @@ public class StorageTest {
                 R.raw.clash_config
         };
 
-        for(String filename: paths) {
-            assertFalse(new File(filename).exists());
-        }
         storage.reset();
+
         for(int i = 0; i < paths.length; i++) {
             String filename = paths[i];
             String rawString = storage.readRawText(ids[i]);
-            String content = Storage.read(filename);
+            String content = new String(Storage.read(filename));
             assertEquals(content, rawString);
         }
     }

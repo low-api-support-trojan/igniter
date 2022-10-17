@@ -16,11 +16,11 @@ public class ClashTest {
     public void shouldParseYaml() throws IOException {
         String filename = "./src/test/java/io/github/trojan_gfw/igniter/data/scratch.yml";
         File f = new File(filename);
-        String text = Storage.read(f.getAbsolutePath());
+        String text = new String(Storage.read(f.getAbsolutePath()));
         ClashConfig cc = new ClashConfig(f.getAbsolutePath());
         File f1 = new File(filename + ".tmp");
         cc.save(f1.getAbsolutePath());
-        String text1 = Storage.read(f1.getAbsolutePath());
+        String text1 = new String(Storage.read(f1.getAbsolutePath()));
         ClashConfig cc1 = new ClashConfig(f1.getAbsolutePath());
         assertEquals(cc1.data, cc.data);
         int port = cc1.getPort();
