@@ -7,7 +7,7 @@ jobs:
     environment:
       JVM_OPTS: -Xmx4G
     steps:
-      - checkout low-api-support
+      - checkout
       - run:
           name: Pull Submodules
           command: git submodule update --init --recursive --remote
