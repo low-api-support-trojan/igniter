@@ -16,6 +16,7 @@ public class TrojanPreferences {
     public static final String KEY_ENABLE_CLASH = "enable_clash";
     public static final String KEY_ENABLE_LAN = "enable_lan";
     public static final String KEY_ENABLE_AUTO_START = "enable_auto_start";
+    public static final String KEY_ENABLE_BOOT_START = "enable_boot_start";
     public static final String KEY_SELECTED_INDEX = "selected_index";
 
     boolean enableIPV6;
@@ -23,6 +24,7 @@ public class TrojanPreferences {
     boolean everStarted;
     boolean enableLan;
     boolean enableAutoStart;
+    boolean enableBootStart;
 
     int selectedIndex;
 
@@ -38,6 +40,7 @@ public class TrojanPreferences {
         enableClash = sharedPreferences.getBoolean(KEY_ENABLE_CLASH, false);
         enableLan = sharedPreferences.getBoolean(KEY_ENABLE_LAN, false);
         enableAutoStart = sharedPreferences.getBoolean(KEY_ENABLE_AUTO_START, false);
+        enableBootStart = sharedPreferences.getBoolean(KEY_ENABLE_BOOT_START, false);
         selectedIndex = sharedPreferences.getInt(KEY_SELECTED_INDEX, 0);
     }
 
@@ -109,6 +112,15 @@ public class TrojanPreferences {
     public void setEnableAutoStart(boolean enableAutoStart) {
         this.enableAutoStart = enableAutoStart;
         setBoolean(KEY_ENABLE_AUTO_START, enableAutoStart);
+    }
+
+    public boolean isEnableBootStart() {
+        return enableBootStart;
+    }
+
+    public void setEnableBootStart(boolean enableBootStart) {
+        this.enableBootStart = enableBootStart;
+        setBoolean(KEY_ENABLE_BOOT_START, enableBootStart);
     }
 
     public int getSelectedIndex() {

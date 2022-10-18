@@ -235,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         clashSwitch = findViewById(R.id.clashSwitch);
         enableLanSwitch = findViewById(R.id.switch_enable_lan);
         SwitchCompat enableAutoStartSwitch = findViewById(R.id.switch_enable_auto_start);
+        SwitchCompat enableBootStartSwitch = findViewById(R.id.switch_enable_boot_start);
         clashLink = findViewById(R.id.clashLink);
         clashLink.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -279,6 +280,12 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
         enableAutoStartSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             Log.v(TAG, " auto start : " + isChecked);
             app.trojanPreferences.setEnableAutoStart(isChecked);
+        });
+
+        enableBootStartSwitch.setChecked(app.trojanPreferences.isEnableBootStart());
+        enableBootStartSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Log.v(TAG, " auto start : " + isChecked);
+            app.trojanPreferences.setEnableBootStart(isChecked);
         });
 
         ipv6Switch.setOnCheckedChangeListener((buttonView, isChecked) -> app.trojanPreferences.setEnableIPV6(isChecked));
