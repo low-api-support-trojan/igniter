@@ -183,9 +183,6 @@ public class ProxyService extends VpnService implements TestConnection.OnResultL
     }
 
     private Set<String> getExemptAppPackageNames() {
-        if (!app.storage.isExternalWritable()) {
-            return Collections.emptySet();
-        }
         if (mExemptAppDataSource == null) {
             mExemptAppDataSource = new ExemptAppDataManager(app);
         }

@@ -3,6 +3,7 @@ package io.github.trojan_gfw.igniter.exempt.adapter;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -71,7 +72,7 @@ public class AppInfoAdapter extends RecyclerView.Adapter<AppInfoAdapter.ViewHold
 
     class ViewHolder extends RecyclerView.ViewHolder implements CompoundButton.OnCheckedChangeListener {
         private final TextView mNameTv;
-        private final Switch mExemptSwitch;
+        private final SwitchCompat mExemptSwitch;
         private AppInfo mCurrentInfo;
 
         ViewHolder(@NonNull View itemView) {

@@ -486,16 +486,7 @@ public class MainActivity extends AppCompatActivity implements TrojanConnection.
                 serverListLauncher.launch(new Intent(this, ServerListActivity.class));
                 return true;
             case (R.id.action_exempt_app):
-                if (app.storage.isExternalWritable()) {
-                    exemptAppLauncher.launch(new Intent(this, ExemptAppActivity.class));
-                } else {
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE}, READ_WRITE_EXT_STORAGE_PERMISSION_REQUEST);
-                    } else {
-                        Snackbar.make(rootViewGroup, R.string.main_exempt_feature_permission_requirement, Snackbar.LENGTH_LONG).show();
-                    }
-                }
+                exemptAppLauncher.launch(new Intent(this, ExemptAppActivity.class));
                 return true;
             default:
                 // Invoke the superclass to handle it.

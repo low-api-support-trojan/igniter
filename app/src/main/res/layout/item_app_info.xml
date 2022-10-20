@@ -16,7 +16,7 @@
         android:textSize="@dimen/text_size"
         tools:text="appNameTv" />
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/appExemptSwitch"
         android:layout_gravity="end|center_vertical"
         android:layout_width="wrap_content"
